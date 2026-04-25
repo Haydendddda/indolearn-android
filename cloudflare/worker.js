@@ -13,11 +13,27 @@ export default {
       }, null, 2), { headers: { ...cors, 'Content-Type': 'application/json' } });
     }
 
+    // Proxy the APK directly — do NOT redirect to GitHub.
+    // GitHub is inaccessible in mainland China, so the Worker fetches the file
+    // on behalf of the user and streams it through Cloudflare's network.
     if (path === '/indolearn/app.apk') {
-      return Response.redirect(
-        'https://github.com/Haydendddda/indolearn-android/releases/download/v1.0.8/IndoLearn-v1.0.8.apk',
-        302
-      );
+      const apkUrl = 'https://github.com/Haydendddda/indolearn-android/releases/download/v1.0.8/IndoLearn-v1.0.8.apk';
+      try {
+        const resp = await fetch(apkUrl, { redirect: 'follow' });
+        if (!resp.ok) {
+          return new Response('APK fetch failed: ' + resp.status, { status: 502 });
+        }
+        return new Response(resp.body, {
+          headers: {
+            'Content-Type': 'application/vnd.android.package-archive',
+            'Content-Disposition': 'attachment; filename="IndoLearn-v1.0.8.apk"',
+            'Access-Control-Allow-Origin': '*',
+            'Cache-Control': 'public, max-age=86400'
+          }
+        });
+      } catch (e) {
+        return new Response('APK error: ' + e.message, { status: 502 });
+      }
     }
 
     if (path === '/indolearn/tts') {
