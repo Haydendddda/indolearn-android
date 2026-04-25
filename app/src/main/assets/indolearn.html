@@ -337,7 +337,13 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
       <input type="text" id="cfg-gid" placeholder="xxx.apps.googleusercontent.com">
       <div class="hint">Google Cloud Console → 凭据 → OAuth 2.0 客户端 ID</div>
     </div>
+    <div class="field">
+      <label>自动更新地址（选填）</label>
+      <input type="text" id="cfg-update-url" placeholder="https://yourdomain.com/indolearn/version.json">
+      <div class="hint">填入后 App 每次启动自动检查新版本。JSON 格式：<code>{"version_code":5,"version":"1.0.5","apk_url":"...","changelog":"..."}</code></div>
+    </div>
     <button class="btn btn-primary btn-block" onclick="saveSettings()">💾 保存设置</button>
+    <button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="manualCheckUpdate()">🔄 立即检查更新</button>
   </div>
 
   <div class="card">
@@ -402,11 +408,20 @@ function applyDarkMode() {
 function saveSettings() {
   db.settings.geminiKey = document.getElementById('cfg-gemini').value.trim();
   db.settings.googleClientId = document.getElementById('cfg-gid').value.trim();
+  db.settings.updateUrl = document.getElementById('cfg-update-url').value.trim();
   save(); toast('设置已保存 ✓');
 }
 function loadSettingsUI() {
   document.getElementById('cfg-gemini').value = db.settings.geminiKey || '';
   document.getElementById('cfg-gid').value = db.settings.googleClientId || '';
+  document.getElementById('cfg-update-url').value = db.settings.updateUrl || '';
+}
+function manualCheckUpdate() {
+  const url = db.settings.updateUrl;
+  if (!url) { toast('请先填写自动更新地址'); return; }
+  if (!window.AndroidBridge) { toast('仅 Android 版支持自动更新'); return; }
+  window.AndroidBridge.checkForUpdate(url);
+  toast('正在检查更新...');
 }
 
 // ── NAV ────────────────────────────────────────────────
@@ -475,6 +490,12 @@ function toggleStar(id, event) {
 
 // ── TTS ────────────────────────────────────────────────
 function speak(text) {
+  // Prefer native Android TTS (reliable Indonesian voice)
+  if (window.AndroidBridge?.speak) {
+    window.AndroidBridge.speak(text);
+    return;
+  }
+  // Fallback: Web Speech API (may lack id-ID voice on some devices)
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'id-ID'; u.rate = 0.8;
@@ -732,6 +753,18 @@ async function autoImportAllEmails() {
     await extractVocab(true);
     setGmailProgress(`✅ 导入完成（有效 ${fetched} 封，过滤 ${skipped} 封）`);
   } catch(e) { setGmailProgress(`❌ ${e.message}`); }
+}
+
+// ── AUTO-UPDATE ────────────────────────────────────────
+// Called by Android when a newer version_code is detected in version.json
+function onUpdateAvailable(version, apkUrl, changelog) {
+  const msg = changelog
+    ? `发现新版本 v${version}\n${changelog}\n\n是否立即下载安装？`
+    : `发现新版本 v${version}，是否立即下载安装？`;
+  if (confirm(msg)) {
+    window.AndroidBridge?.downloadUpdate(apkUrl, version);
+    toast('正在后台下载，完成后会弹出安装提示 ⬇️');
+  }
 }
 
 // Silent Gmail reconnect
@@ -1120,6 +1153,10 @@ load();
 applyDarkMode();
 loadSettingsUI();
 trySilentGmailConnect();
+// Auto-check for updates on startup (silently; shows prompt only if newer version found)
+if (window.AndroidBridge && db.settings.updateUrl) {
+  window.AndroidBridge.checkForUpdate(db.settings.updateUrl);
+}
 </script>
 </body>
 </html>

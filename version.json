@@ -1,0 +1,6 @@
+{
+  "version_code": 4,
+  "version": "1.0.4",
+  "apk_url": "https://raw.githubusercontent.com/Haydendddda/indolearn-android/main/releases/IndoLearn-1.0.4.apk",
+  "changelog": "修复朗读功能（原生 TTS），新增自动更新"
+}
