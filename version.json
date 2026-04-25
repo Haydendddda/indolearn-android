@@ -1,6 +1,6 @@
 {
-  "version_code": 5,
-  "version": "1.0.5",
+  "version_code": 6,
+  "version": "1.0.6",
   "apk_url": "https://1232131.xyz/indolearn/app.apk",
-  "changelog": "修复发音功能（印尼语 TTS），更新签名防止自动更新冲突"
+  "changelog": "修复发音功能：加入在线 TTS 降级方案，无需安装印尼语语音包（适配中国版 Android 手机）"
 }
