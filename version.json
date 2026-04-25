@@ -1,6 +1,6 @@
 {
-  "version_code": 11,
-  "version": "1.0.11",
+  "version_code": 12,
+  "version": "1.0.12",
   "apk_url": "https://1232131.xyz/indolearn/app.apk",
-  "changelog": "v1.0.11: 默认打开学习页；设置中新增每天自动同步 Gmail 选项；记忆技巧显示优化"
+  "changelog": "v1.0.12: 卡片可直接左右滑动（无需先翻转）；词库新增删除单词功能"
 }

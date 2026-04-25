@@ -12,22 +12,22 @@ export default {
 
     if (path === '/indolearn/version.json') {
       return new Response(JSON.stringify({
-        version_code: 11,
-        version: "1.0.11",
+        version_code: 12,
+        version: "1.0.12",
         apk_url: "https://1232131.xyz/indolearn/app.apk",
-        changelog: "v1.0.11: 默认打开学习页；每天自动同步 Gmail；记忆技巧显示优化"
+        changelog: "v1.0.12: 卡片可直接左右滑动；词库新增删除单词功能"
       }, null, 2), { headers: { ...cors, 'Content-Type': 'application/json' } });
     }
 
     if (path === '/indolearn/app.apk') {
-      const apkUrl = 'https://github.com/Haydendddda/indolearn-android/releases/download/v1.0.11/IndoLearn-v1.0.11.apk';
+      const apkUrl = 'https://github.com/Haydendddda/indolearn-android/releases/download/v1.0.12/IndoLearn-v1.0.12.apk';
       try {
         const resp = await fetch(apkUrl, { redirect: 'follow' });
         if (!resp.ok) return new Response('APK fetch failed: ' + resp.status, { status: 502 });
         return new Response(resp.body, {
           headers: {
             'Content-Type': 'application/vnd.android.package-archive',
-            'Content-Disposition': 'attachment; filename="IndoLearn-v1.0.11.apk"',
+            'Content-Disposition': 'attachment; filename="IndoLearn-v1.0.12.apk"',
             'Access-Control-Allow-Origin': '*',
             'Cache-Control': 'public, max-age=86400'
           }

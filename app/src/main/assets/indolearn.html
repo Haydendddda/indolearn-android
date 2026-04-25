@@ -112,7 +112,6 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 .fc-sec{width:100%;margin-bottom:10px}
 .fc-sec-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:3px}
 .fc-sec-txt{font-size:13px;color:var(--text);line-height:1.5}
-.fc-mnemonic{background:rgba(255,200,60,.08);border:1px solid rgba(255,200,60,.25);border-left:3px solid #ffc83c;border-radius:8px;padding:10px 12px;margin-top:6px;font-size:14.5px;line-height:1.65;color:var(--text);white-space:pre-wrap;text-align:left}
 .fc-img{width:70px;height:70px;border-radius:8px;object-fit:cover;float:right;margin-left:10px;margin-bottom:4px}
 
 /* STAR BUTTON ON CARD */
@@ -160,6 +159,9 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
   color:var(--text3);transition:color .15s,transform .15s;padding:1px}
 .wc-star:hover{transform:scale(1.2)}
 .wc-star.starred{color:#fbbc04}
+.wc-del{position:absolute;top:6px;left:6px;background:none;border:none;font-size:15px;line-height:1;
+  cursor:pointer;color:var(--text3);padding:2px 4px;border-radius:4px;transition:color .15s}
+.wc-del:hover,.wc-del:active{color:#ea4335;background:rgba(234,67,53,.1)}
 
 /* STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
@@ -207,8 +209,8 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 <nav>
   <div class="nav-brand">🇮🇩 IndoLearn</div>
   <div class="nav-tabs">
-    <button class="nav-tab" onclick="showView('import')">导入</button>
-    <button class="nav-tab active" onclick="showView('study')">学习</button>
+    <button class="nav-tab active" onclick="showView('import')">导入</button>
+    <button class="nav-tab" onclick="showView('study')">学习</button>
     <button class="nav-tab" onclick="showView('words')">词库</button>
     <button class="nav-tab" onclick="showView('stats')">统计</button>
     <button class="nav-tab" onclick="showView('setup')">设置</button>
@@ -337,16 +339,6 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
       <label>Google OAuth Client ID（Gmail 连接 + 云端同步用）</label>
       <input type="text" id="cfg-gid" placeholder="xxx.apps.googleusercontent.com">
       <div class="hint">Google Cloud Console → 凭据 → OAuth 2.0 客户端 ID</div>
-    </div>
-    <div class="card">
-      <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
-        <input type="checkbox" id="auto-sync-check" onchange="saveAutoSync(this.checked)"
-          style="width:18px;height:18px;accent-color:var(--blue);cursor:pointer">
-        <div>
-          <div style="font-size:14px;font-weight:600">📬 每天自动同步 Gmail</div>
-          <div class="hint" style="margin-top:2px">首次打开 App 且距上次同步超过 24 小时时，自动触发 Gmail 导入（需已填写 Client ID）</div>
-        </div>
-      </label>
     </div>
     <div class="field">
       <label>自动更新地址（选填）</label>
@@ -497,6 +489,19 @@ function toggleStar(id, event) {
     wbtn.classList.toggle('starred', db.vocab[i].starred);
   }
   toast(db.vocab[i].starred ? '已加入收藏 ⭐' : '已取消收藏');
+}
+
+// ── DELETE WORD ────────────────────────────────────────
+function deleteWord(id, event) {
+  if (event) event.stopPropagation();
+  const i = db.vocab.findIndex(v=>v.id===id);
+  if (i<0) return;
+  const word = db.vocab[i].indonesian || db.vocab[i].chinese || '该单词';
+  if (!confirm(`删除「${word}」？`)) return;
+  db.vocab.splice(i, 1);
+  save();
+  renderWords();
+  toast('已删除 🗑️');
 }
 
 // ── TTS ────────────────────────────────────────────────
@@ -969,7 +974,7 @@ function renderCard() {
               ${w.sourceWord&&w.sourceLang==='Chinese'?`<div><div class="fc-sec-lbl">原文</div><div class="fc-sec-txt" style="font-size:15px;color:var(--text2)">${esc(w.sourceWord)}</div></div>`:''}
             </div>
           </div>
-          ${w.mnemonic?`<div class="fc-sec"><div class="fc-sec-lbl">💡 记忆技巧</div><div class="fc-mnemonic">${esc(w.mnemonic).replace(/。/g,'。\n').replace(/；/g,'；\n').replace(/\n +/g,'\n').trim()}</div></div>`:''}
+          ${w.mnemonic?`<div class="fc-sec"><div class="fc-sec-lbl">💡 记忆技巧</div><div class="fc-sec-txt">${esc(w.mnemonic)}</div></div>`:''}
           ${relatedHtml}
         </div>
       </div>
@@ -1026,8 +1031,9 @@ function initSwipe() {
     const overlay = document.getElementById('swipe-overlay');
     if (overlay) overlay.style.display='none';
 
-    if (Math.abs(touchDeltaX) > 90 && flipped) {
-      // Swipe out
+    if (Math.abs(touchDeltaX) > 90) {
+      // Swipe out — auto-flip first if needed, then rate
+      if (!flipped) { flipped = true; document.getElementById('fcs')?.classList.add('flipped'); }
       const dir = touchDeltaX > 0 ? 1 : -1;
       if (inner) { inner.style.transition='transform 0.28s'; inner.style.transform=`translateX(${dir*500}px) rotate(${dir*20}deg)`; }
       setTimeout(()=>rate(dir>0?2:0), 280);
@@ -1103,6 +1109,7 @@ function filterWords(f, btn) {
     <div class="wc">
       <div class="wc-dot dot-${status(w)}"></div>
       <button class="wc-star ${w.starred?'starred':''}" data-id="${w.id}" onclick="toggleStar(${w.id},event)">${w.starred?'⭐':'☆'}</button>
+      <button class="wc-del" onclick="deleteWord(${w.id},event)" title="删除">×</button>
       <div class="wc-emoji">${w.emoji||'📖'}</div>
       <div class="wc-ido">${esc(w.indonesian)}</div>
       ${w.chinese?`<div class="wc-en" style="color:var(--text);font-weight:600">${esc(w.chinese)}</div>`:''}
@@ -1183,50 +1190,11 @@ function clearAll() {
   }
 }
 
-// ── AUTO-SYNC GMAIL LOGIC ──────────────────────────────
-function saveAutoSync(val) {
-  db.settings.autoSyncGmail = val;
-  save();
-}
-
-function maybeAutoSyncGmail() {
-  if (!db.settings.autoSyncGmail) return;
-  if (!db.settings.googleClientId) return;
-  const now = Date.now();
-  const last = db.meta.lastAutoSync || 0;
-  if (now - last < 24 * 60 * 60 * 1000) return; // less than 24h — skip
-  // On Android: trigger OAuth which will auto-import on success
-  if (window.AndroidBridge) {
-    window.AndroidBridge.startGmailOAuth(db.settings.googleClientId);
-    return;
-  }
-  // On web: try silent reconnect
-  trySilentGmailConnect();
-}
-
-// Patch onGmailTokenReceived to record sync time and auto-import
-const _origGmailReceived = onGmailTokenReceived;
-function onGmailTokenReceived(token) {
-  _origGmailReceived(token);
-  if (token && db.settings.autoSyncGmail) {
-    db.meta.lastAutoSync = Date.now();
-    save();
-  }
-}
-
 // ── INIT ───────────────────────────────────────────────
 load();
 applyDarkMode();
 loadSettingsUI();
-showView('study');   // default to 学习 tab
-
-// Restore auto-sync checkbox state
-const asc = document.getElementById('auto-sync-check');
-if (asc) asc.checked = !!db.settings.autoSyncGmail;
-
 trySilentGmailConnect();
-maybeAutoSyncGmail();   // auto-sync if 24h have passed and setting is on
-
 // Auto-check for updates on startup (silently; shows prompt only if newer version found)
 if (window.AndroidBridge && db.settings.updateUrl) {
   window.AndroidBridge.checkForUpdate(db.settings.updateUrl);
