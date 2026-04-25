@@ -59,7 +59,7 @@ export default {
           <div>
             <h1 class="app-name">IndoLearn</h1>
             <p class="app-tagline">AI 驱动的印尼语词汇学习 Android 应用</p>
-            <span class="badge">v1.0.10</span>
+            <span class="badge">v1.0.12</span>
             <span class="badge badge-green">免费开源</span>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default {
           <h2>⬇️ 下载安装</h2>
           <p style="color:var(--text2);margin-bottom:20px">支持 Android 7.0+，需要开启「允许安装未知来源应用」</p>
           <div class="download-btns">
-            <a class="btn-dl btn-primary-dl" href="/indolearn/app.apk">⬇️ 下载 APK（v1.0.10）</a>
+            <a class="btn-dl btn-primary-dl" href="/indolearn/app.apk">⬇️ 下载 APK（v1.0.12）</a>
             <a class="btn-dl btn-ghost-dl" href="https://github.com/Haydendddda/indolearn-android/releases" target="_blank">📦 GitHub Releases</a>
           </div>
           <p style="font-size:12px;color:var(--text2);margin-top:14px">APK 经过 Cloudflare 代理，国内网络可直接下载</p>
@@ -115,6 +115,38 @@ export default {
         <div class="section">
           <h2>🛠️ 技术栈</h2>
           <p>Kotlin · Android WebView · Google OAuth2 · Gemini API · Google Drive API · Gmail API · Cloudflare Workers · GitHub Actions 自动构建</p>
+        </div>
+
+        <div class="section">
+          <h2>📋 更新日志</h2>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="border-left:3px solid var(--accent);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+                <span class="badge" style="margin:0">v1.0.12</span>
+                <span style="font-size:12px;color:var(--text2)">最新版本</span>
+              </div>
+              <p style="margin:0;font-size:14px;color:var(--text)">卡片可直接左右滑动（无需先翻转）；词库新增删除单词功能</p>
+            </div>
+            <div style="border-left:3px solid var(--border);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
+              <div style="margin-bottom:4px"><span class="badge" style="margin:0">v1.0.11</span></div>
+              <p style="margin:0;font-size:14px;color:var(--text2)">默认打开学习页；设置中新增每 24 小时自动同步 Gmail 选项；记忆技巧显示优化</p>
+            </div>
+            <div style="border-left:3px solid var(--border);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
+              <div style="margin-bottom:4px"><span class="badge" style="margin:0">v1.0.10</span></div>
+              <p style="margin:0;font-size:14px;color:var(--text2)">修复 Google Drive 云同步按钮无法点击的问题；新增导航主页与应用落地页</p>
+            </div>
+            <div style="border-left:3px solid var(--border);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
+              <div style="margin-bottom:4px"><span class="badge" style="margin:0">v1.0.9</span></div>
+              <p style="margin:0;font-size:14px;color:var(--text2)">修复 386 处乱码（HTML 双重编码问题根因修复）；应用内自动更新支持</p>
+            </div>
+            <div style="border-left:3px solid var(--border);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
+              <div style="margin-bottom:4px"><span class="badge" style="margin:0">v1.0.6</span></div>
+              <p style="margin:0;font-size:14px;color:var(--text2)">新增 TTS 语音朗读；Cloudflare Worker 代理发音 API；稳定签名 keystore</p>
+            </div>
+          </div>
+          <p style="margin-top:14px;font-size:12px;color:var(--text2)">
+            <a href="https://github.com/Haydendddda/indolearn-android/releases" target="_blank" style="color:var(--accent)">查看全部发布记录 →</a>
+          </p>
         </div>
       `, 'IndoLearn — AI 印尼语学习');
     }
