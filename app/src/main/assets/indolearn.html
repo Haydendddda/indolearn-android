@@ -490,12 +490,13 @@ function toggleStar(id, event) {
 
 // ── TTS ────────────────────────────────────────────────
 function speak(text) {
-  // Prefer native Android TTS (reliable Indonesian voice)
-  if (window.AndroidBridge?.speak) {
+  // Use native Android TTS only if the Indonesian pack is actually ready
+  if (window.AndroidBridge?.isTtsReady?.() && window.AndroidBridge?.speak) {
     window.AndroidBridge.speak(text);
     return;
   }
-  // Fallback: Web Speech API (may lack id-ID voice on some devices)
+  // Fallback: Web Speech API (covers missing TTS pack or non-Android)
+  if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'id-ID'; u.rate = 0.8;
