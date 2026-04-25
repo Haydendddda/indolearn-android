@@ -44,12 +44,43 @@ class LocalServer(private val context: Context, val port: Int = 8765) {
             val rawPath = if (parts.size >= 2) parts[1] else "/"
             val path = rawPath.substringBefore("?").trimStart('/')
 
+            val out = socket.getOutputStream()
+
+            // Special route: OAuth2 relay page
+            // Google redirects here with #access_token=... in the fragment.
+            // This page reads the fragment via JS and bounces it back to the
+            // app's deep-link scheme so onNewIntent() can pick it up.
+            if (path == "oauth2redirect") {
+                val html = """<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>授权中...</title></head>
+<body>
+<p>正在完成授权，请稍候...</p>
+<script>
+var hash = window.location.hash;
+var search = window.location.search;
+if (hash && hash.length > 1) {
+  window.location.href = 'com.indolearn.app://oauth2redirect' + hash;
+} else if (search) {
+  window.location.href = 'com.indolearn.app://oauth2redirect' + search;
+} else {
+  document.body.innerText = '授权失败：未收到令牌';
+}
+</script>
+</body></html>""".trimIndent()
+                val bytes = html.toByteArray(Charsets.UTF_8)
+                val header = "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n" +
+                        "Content-Length: ${bytes.size}\r\nCache-Control: no-cache\r\nConnection: close\r\n\r\n"
+                out.write(header.toByteArray(Charsets.UTF_8))
+                out.write(bytes)
+                out.flush()
+                return
+            }
+
             val fileName = when {
                 path.isEmpty() || path == "indolearn.html" -> "indolearn.html"
                 else -> path
             }
 
-            val out = socket.getOutputStream()
             try {
                 val bytes = context.assets.open(fileName).readBytes()
                 val mime = mimeType(fileName)

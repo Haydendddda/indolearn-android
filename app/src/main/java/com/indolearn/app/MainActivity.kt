@@ -152,7 +152,9 @@ class MainActivity : AppCompatActivity() {
                 return
             }
 
-            val redirectUri = "com.indolearn.app://oauth2redirect"
+            // Use loopback redirect: Google accepts http://localhost for sensitive scopes.
+            // LocalServer serves /oauth2redirect which relays the token back via deep link.
+            val redirectUri = "http://localhost:$serverPort/oauth2redirect"
             val scope = "https://www.googleapis.com/auth/gmail.readonly"
 
             val authUrl = Uri.parse("https://accounts.google.com/o/oauth2/v2/auth")
@@ -178,7 +180,7 @@ class MainActivity : AppCompatActivity() {
         @JavascriptInterface
         fun startDriveOAuth(clientId: String) {
             if (clientId.isBlank()) return
-            val redirectUri = "com.indolearn.app://oauth2redirect"
+            val redirectUri = "http://localhost:$serverPort/oauth2redirect"
             val scope = "https://www.googleapis.com/auth/drive.appdata"
 
             val authUrl = Uri.parse("https://accounts.google.com/o/oauth2/v2/auth")
