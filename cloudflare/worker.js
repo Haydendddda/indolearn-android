@@ -6,16 +6,16 @@ export default {
 
     if (path === '/indolearn/version.json') {
       return new Response(JSON.stringify({
-        version_code: 7,
-        version: "1.0.7",
+        version_code: 8,
+        version: "1.0.8",
         apk_url: "https://1232131.xyz/indolearn/app.apk",
-        changelog: "修复乱码：解决部分国产 Android（如 OPPO）显示乱码；修复自动更新安装失败"
+        changelog: "彻底修复乱码：改用显式 UTF-8 解码，解决 OPPO/MIUI WebView 乱码"
       }, null, 2), { headers: { ...cors, 'Content-Type': 'application/json' } });
     }
 
     if (path === '/indolearn/app.apk') {
       return Response.redirect(
-        'https://github.com/Haydendddda/indolearn-android/releases/download/v1.0.7/IndoLearn-v1.0.7.apk',
+        'https://github.com/Haydendddda/indolearn-android/releases/download/v1.0.8/IndoLearn-v1.0.8.apk',
         302
       );
     }
