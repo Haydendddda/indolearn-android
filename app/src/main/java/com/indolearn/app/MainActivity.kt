@@ -131,13 +131,20 @@ class MainActivity : AppCompatActivity() {
             val error = params["error"] ?: "未知错误"
             runOnUiThread {
                 Toast.makeText(this, "授权失败: $error", Toast.LENGTH_SHORT).show()
+                // Can't parse state without token, default to gmail callback
                 webView.evaluateJavascript("onGmailTokenReceived('')", null)
             }
             return
         }
 
+        // Route token to the correct JS callback based on the OAuth state parameter.
+        // Gmail and Drive both use the same deep-link redirect URI; state tells us which flow.
+        val callbackFn = when (params["state"]) {
+            "drive" -> "onDriveTokenReceived"
+            else    -> "onGmailTokenReceived"
+        }
         runOnUiThread {
-            webView.evaluateJavascript("onGmailTokenReceived('$token')", null)
+            webView.evaluateJavascript("$callbackFn('$token')", null)
         }
     }
 
@@ -175,6 +182,7 @@ class MainActivity : AppCompatActivity() {
                 .appendQueryParameter("response_type", "token")
                 .appendQueryParameter("scope", "https://www.googleapis.com/auth/gmail.readonly")
                 .appendQueryParameter("include_granted_scopes", "true")
+                .appendQueryParameter("state", "gmail")
                 .build()
             runOnUiThread {
                 CustomTabsIntent.Builder().setShowTitle(false).build()
@@ -192,6 +200,7 @@ class MainActivity : AppCompatActivity() {
                 .appendQueryParameter("redirect_uri", redirectUri)
                 .appendQueryParameter("response_type", "token")
                 .appendQueryParameter("scope", "https://www.googleapis.com/auth/drive.appdata")
+                .appendQueryParameter("state", "drive")
                 .build()
             runOnUiThread {
                 CustomTabsIntent.Builder().build().launchUrl(this@MainActivity, authUrl)

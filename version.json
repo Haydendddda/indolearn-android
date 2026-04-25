@@ -1,6 +1,6 @@
 {
-  "version_code": 9,
-  "version": "1.0.9",
+  "version_code": 10,
+  "version": "1.0.10",
   "apk_url": "https://1232131.xyz/indolearn/app.apk",
-  "changelog": "v1.0.9: 根本修复乱码问题 — 修正 HTML 文件的双重编码错误，所有中文、表情符号现在正确显示；修复更新安装权限问题"
+  "changelog": "v1.0.10: 修复 Google Drive 云端同步（OAuth 回调路由错误导致同步按钮不可用）"
 }
