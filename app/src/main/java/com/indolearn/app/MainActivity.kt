@@ -7,7 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.speech.tts.TextToSpeech
 import android.webkit.*
 import android.widget.Toast
@@ -77,6 +79,9 @@ class MainActivity : AppCompatActivity() {
             setSupportZoom(false)
             useWideViewPort = true
             loadWithOverviewMode = true
+            // Explicitly set UTF-8 — some Chinese ROM WebViews default to Latin-1,
+            // causing all Chinese / emoji text to appear as mojibake.
+            defaultTextEncodingName = "UTF-8"
         }
 
         // JavaScript bridge
@@ -259,18 +264,17 @@ class MainActivity : AppCompatActivity() {
                 override fun onReceive(context: Context, intent: Intent) {
                     val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
                     if (id != downloadId) return
-                    val cursor = dm.query(DownloadManager.Query().setFilterById(downloadId))
-                    if (cursor.moveToFirst()) {
-                        val statusCol = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
-                        if (statusCol >= 0 && cursor.getInt(statusCol) == DownloadManager.STATUS_SUCCESSFUL) {
-                            val uriCol = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
-                            if (uriCol >= 0) {
-                                val fileUri = Uri.parse(cursor.getString(uriCol))
-                                runOnUiThread { installApk(fileUri) }
-                            }
+                    // Use getUriForDownloadedFile() — returns content:// URI that works on all
+                    // Android versions without FileProvider, unlike file:// from COLUMN_LOCAL_URI.
+                    val contentUri = dm.getUriForDownloadedFile(downloadId)
+                    if (contentUri != null) {
+                        runOnUiThread { installApk(contentUri) }
+                    } else {
+                        runOnUiThread {
+                            Toast.makeText(this@MainActivity,
+                                "下载完成，请在通知栏点击安装", Toast.LENGTH_LONG).show()
                         }
                     }
-                    cursor.close()
                     try { unregisterReceiver(this) } catch (_: Exception) {}
                 }
             }
@@ -288,13 +292,36 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun installApk(fileUri: Uri) {
+    /**
+     * Launch the APK installer.
+     *
+     * On Android 8+ (API 26+) the user must explicitly grant "Install unknown apps" permission
+     * to this app — unlike the old global "Unknown sources" toggle. If not granted yet, we open
+     * the per-app settings page so they can enable it, then ask them to retry the update.
+     */
+    private fun installApk(contentUri: Uri) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!packageManager.canRequestPackageInstalls()) {
+                Toast.makeText(
+                    this,
+                    "请在接下来的设置页面开启"允许安装未知应用"，然后重新点击更新",
+                    Toast.LENGTH_LONG
+                ).show()
+                startActivity(
+                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                        Uri.parse("package:$packageName"))
+                )
+                return
+            }
+        }
         val intent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(fileUri, "application/vnd.android.package-archive")
+            setDataAndType(contentUri, "application/vnd.android.package-archive")
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
         }
-        try { startActivity(intent) } catch (_: Exception) {
-            Toast.makeText(this, "无法启动安装程序，请手动安装 APK", Toast.LENGTH_LONG).show()
+        try {
+            startActivity(intent)
+        } catch (_: Exception) {
+            Toast.makeText(this, "无法启动安装程序，请到通知栏手动点击安装", Toast.LENGTH_LONG).show()
         }
     }
 }
