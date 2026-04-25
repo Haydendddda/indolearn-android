@@ -1,6 +1,6 @@
 {
-  "version_code": 10,
-  "version": "1.0.10",
+  "version_code": 11,
+  "version": "1.0.11",
   "apk_url": "https://1232131.xyz/indolearn/app.apk",
-  "changelog": "v1.0.10: 修复 Google Drive 云端同步（OAuth 回调路由错误导致同步按钮不可用）"
+  "changelog": "v1.0.11: 默认打开学习页；设置中新增每天自动同步 Gmail 选项；记忆技巧显示优化"
 }
