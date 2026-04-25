@@ -194,12 +194,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         /**
+         * Returns true if native Indonesian TTS is available and ready.
+         * JS checks this before calling speak() so it can fall back to Web Speech API.
+         */
+        @JavascriptInterface
+        fun isTtsReady(): Boolean = ttsReady
+
+        /**
          * Native TTS via Android TextToSpeech — reliable Indonesian pronunciation.
          * JS: window.AndroidBridge.speak(text)
          */
         @JavascriptInterface
         fun speak(text: String) {
-            if (!ttsReady) return  // HTML falls back to Web Speech API
+            if (!ttsReady) return
             tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "tts_${System.currentTimeMillis()}")
         }
 
