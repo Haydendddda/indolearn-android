@@ -6,10 +6,10 @@ export default {
 
     if (path === '/indolearn/version.json') {
       return new Response(JSON.stringify({
-        version_code: 8,
-        version: "1.0.8",
+        version_code: 9,
+        version: "1.0.9",
         apk_url: "https://1232131.xyz/indolearn/app.apk",
-        changelog: "彻底修复乱码：改用显式 UTF-8 解码，解决 OPPO/MIUI WebView 乱码"
+        changelog: "v1.0.9: 根本修复乱码 — 修正 HTML 双重编码错误，中文和表情符号正确显示"
       }, null, 2), { headers: { ...cors, 'Content-Type': 'application/json' } });
     }
 
@@ -17,7 +17,7 @@ export default {
     // GitHub is inaccessible in mainland China, so the Worker fetches the file
     // on behalf of the user and streams it through Cloudflare's network.
     if (path === '/indolearn/app.apk') {
-      const apkUrl = 'https://github.com/Haydendddda/indolearn-android/releases/download/v1.0.8/IndoLearn-v1.0.8.apk';
+      const apkUrl = 'https://github.com/Haydendddda/indolearn-android/releases/download/v1.0.9/IndoLearn-v1.0.9.apk';
       try {
         const resp = await fetch(apkUrl, { redirect: 'follow' });
         if (!resp.ok) {
@@ -26,7 +26,7 @@ export default {
         return new Response(resp.body, {
           headers: {
             'Content-Type': 'application/vnd.android.package-archive',
-            'Content-Disposition': 'attachment; filename="IndoLearn-v1.0.8.apk"',
+            'Content-Disposition': 'attachment; filename="IndoLearn-v1.0.9.apk"',
             'Access-Control-Allow-Origin': '*',
             'Cache-Control': 'public, max-age=86400'
           }

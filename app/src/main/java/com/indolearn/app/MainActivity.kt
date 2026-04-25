@@ -100,23 +100,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Load HTML directly from assets with explicit UTF-8 decoding.
-        // This bypasses WebView's Content-Type charset detection entirely,
-        // which some Chinese-ROM WebViews (OPPO ColorOS, MIUI, etc.) mishandle
-        // and silently fall back to GBK/Latin-1 instead of UTF-8.
-        try {
-            val htmlBytes = assets.open("indolearn.html").readBytes()
-            val htmlContent = String(htmlBytes, Charsets.UTF_8)
-            webView.loadDataWithBaseURL(
-                "http://localhost:$serverPort/",
-                htmlContent,
-                "text/html",
-                "UTF-8",
-                null
-            )
-        } catch (e: Exception) {
-            webView.loadUrl(appUrl) // fallback
-        }
+        webView.loadUrl(appUrl)
         handleOAuthIntent(intent)
     }
 

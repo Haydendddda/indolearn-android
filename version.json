@@ -1,6 +1,6 @@
 {
-  "version_code": 8,
-  "version": "1.0.8",
+  "version_code": 9,
+  "version": "1.0.9",
   "apk_url": "https://1232131.xyz/indolearn/app.apk",
-  "changelog": "彻底修复乱码：改用显式 UTF-8 解码加载页面，解决 OPPO/MIUI 等国产系统 WebView 忽略 charset 参数导致的乱码问题"
+  "changelog": "v1.0.9: 根本修复乱码问题 — 修正 HTML 文件的双重编码错误，所有中文、表情符号现在正确显示；修复更新安装权限问题"
 }

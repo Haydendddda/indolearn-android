@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IndoLearn v2 â æºè½å°å°¼è¯­å­¦ä¹ </title>
+<title>IndoLearn v2 — 智能印尼语学习</title>
 <!-- GIS OAuth handled by Android bridge -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
-/* ââ TOKENS âââââââââââââââââââââââââââââââââââââââââââ */
+/* ── TOKENS ─────────────────────────────────────────── */
 :root {
   --red:#CC0001; --blue:#1a73e8; --green:#34a853; --yellow:#fbbc04; --orange:#fa7b17;
   --bg:#f8f9fa; --surface:#ffffff; --surface2:#f1f3f4;
@@ -141,7 +141,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 [data-theme="dark"] .rb-good{background:#0d3c20;color:#81c995}
 [data-theme="dark"] .rb-easy{background:#0d2d6e;color:#8ab4f8}
 
-/* RELATED WORDS (è¯æ ¹èæ³) */
+/* RELATED WORDS (词根联想) */
 .root-tag{display:inline-block;background:var(--surface2);border:1px solid var(--border);padding:3px 10px;
   border-radius:12px;font-size:12px;color:var(--text2);margin:2px}
 
@@ -204,15 +204,15 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 <body>
 
 <nav>
-  <div class="nav-brand">ð®ð© IndoLearn</div>
+  <div class="nav-brand">🇮🇩 IndoLearn</div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showView('import')">å¯¼å¥</button>
-    <button class="nav-tab" onclick="showView('study')">å­¦ä¹ </button>
-    <button class="nav-tab" onclick="showView('words')">è¯åº</button>
-    <button class="nav-tab" onclick="showView('stats')">ç»è®¡</button>
-    <button class="nav-tab" onclick="showView('setup')">è®¾ç½®</button>
+    <button class="nav-tab active" onclick="showView('import')">导入</button>
+    <button class="nav-tab" onclick="showView('study')">学习</button>
+    <button class="nav-tab" onclick="showView('words')">词库</button>
+    <button class="nav-tab" onclick="showView('stats')">统计</button>
+    <button class="nav-tab" onclick="showView('setup')">设置</button>
   </div>
-  <button class="dark-btn" onclick="toggleDark()" title="åæ¢æ·±è²æ¨¡å¼" id="dark-btn">ð</button>
+  <button class="dark-btn" onclick="toggleDark()" title="切换深色模式" id="dark-btn">🌙</button>
 </nav>
 
 <main>
@@ -224,34 +224,34 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
   <!-- Gmail box -->
   <div class="gmail-box">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-      <span style="font-size:16px">âï¸</span>
-      <strong style="font-size:13px">ä» Gmail èªå¨å¯¼å¥</strong>
+      <span style="font-size:16px">✉️</span>
+      <strong style="font-size:13px">从 Gmail 自动导入</strong>
       <span id="gmail-badge" style="font-size:11px;color:var(--green);font-weight:600"></span>
     </div>
     <div id="gm-off">
-      <p style="font-size:12px;color:#888;margin-bottom:9px">è¿æ¥åèªå¨è·åæè¿ 50 å°ä¸»è¦é®ä»¶ï¼è¿æ»¤å¹¿å/è®¢éï¼ï¼æåå°å°¼è¯­è¯æ±ã</p>
-      <button class="btn btn-ghost" style="font-size:12px" onclick="connectGmail()">ð è¿æ¥ Gmail</button>
+      <p style="font-size:12px;color:#888;margin-bottom:9px">连接后自动获取最近 50 封主要邮件（过滤广告/订阅），提取印尼语词汇。</p>
+      <button class="btn btn-ghost" style="font-size:12px" onclick="connectGmail()">🔗 连接 Gmail</button>
     </div>
     <div id="gm-on" style="display:none">
       <div id="gmail-progress" style="font-size:12px;color:#666;margin-bottom:8px"></div>
-      <button class="btn btn-ghost" style="font-size:12px;margin-right:6px" onclick="autoImportAllEmails()">ð éæ°å¯¼å¥</button>
-      <button class="btn btn-ghost" style="font-size:12px;color:#c62828" onclick="disconnectGmail()">æ­å¼</button>
+      <button class="btn btn-ghost" style="font-size:12px;margin-right:6px" onclick="autoImportAllEmails()">🔄 重新导入</button>
+      <button class="btn btn-ghost" style="font-size:12px;color:#c62828" onclick="disconnectGmail()">断开</button>
     </div>
   </div>
 
   <!-- Import tabs -->
   <div class="card">
     <div class="itabs">
-      <button class="itab active" onclick="switchImportTab('text',this)">ð ç²è´´ææ¬</button>
-      <button class="itab" onclick="switchImportTab('pdf',this)">ð PDF æä»¶</button>
-      <button class="itab" onclick="switchImportTab('chat',this)">ð¬ èå¤©è®°å½</button>
+      <button class="itab active" onclick="switchImportTab('text',this)">📝 粘贴文本</button>
+      <button class="itab" onclick="switchImportTab('pdf',this)">📄 PDF 文件</button>
+      <button class="itab" onclick="switchImportTab('chat',this)">💬 聊天记录</button>
     </div>
 
     <!-- TEXT -->
     <div class="ipanel active" id="ip-text">
       <div class="field">
-        <label>ä»»æææ¬ â AI èªå¨æåå°å°¼è¯­è¯æ±å¹¶ç»åºä¸­æè§£é</label>
-        <textarea id="input-text" rows="7" placeholder="ç²è´´é®ä»¶ãæç« ãä¼è®®è®°å½...&#10;&#10;æ¯æä¸­æãè±æç­ä»»æè¯­è¨"></textarea>
+        <label>任意文本 — AI 自动提取印尼语词汇并给出中文解释</label>
+        <textarea id="input-text" rows="7" placeholder="粘贴邮件、文章、会议记录...&#10;&#10;支持中文、英文等任意语言"></textarea>
       </div>
     </div>
 
@@ -262,9 +262,9 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
         ondragleave="this.classList.remove('drag-over')"
         ondrop="handlePdfDrop(event)">
         <input type="file" id="pdf-input" accept=".pdf" onchange="handlePdfFile(this.files[0])">
-        <div style="font-size:40px;margin-bottom:8px">ð</div>
-        <div style="font-size:14px;font-weight:600;margin-bottom:4px">ç¹å»æææ½ PDF æä»¶</div>
-        <div style="font-size:12px;color:var(--text3)">èªå¨æåæå­åéå¥ AI åæ</div>
+        <div style="font-size:40px;margin-bottom:8px">📄</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px">点击或拖拽 PDF 文件</div>
+        <div style="font-size:12px;color:var(--text3)">自动提取文字后送入 AI 分析</div>
       </div>
       <div id="pdf-progress" style="font-size:12px;color:var(--text2);margin-top:8px;display:none"></div>
     </div>
@@ -272,13 +272,13 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
     <!-- CHAT -->
     <div class="ipanel" id="ip-chat">
       <div class="field">
-        <label>å¾®ä¿¡ / é£ä¹¦ / Teams èå¤©è®°å½ â ç´æ¥ç²è´´åå§ææ¬</label>
-        <textarea id="input-chat" rows="7" placeholder="ç²è´´èå¤©è®°å½...&#10;&#10;æ¯æä¸­æãè±ææ··ååå®¹ï¼AI ä¼æåå¶ä¸­æä»·å¼çå°å°¼è¯­è¯æ±"></textarea>
+        <label>微信 / 飞书 / Teams 聊天记录 — 直接粘贴原始文本</label>
+        <textarea id="input-chat" rows="7" placeholder="粘贴聊天记录...&#10;&#10;支持中文、英文混合内容，AI 会提取其中有价值的印尼语词汇"></textarea>
       </div>
     </div>
 
     <div class="status" id="import-status"></div>
-    <button class="btn btn-primary btn-block" id="extract-btn" onclick="extractVocab()">â¨ æåè¯æ±</button>
+    <button class="btn btn-primary btn-block" id="extract-btn" onclick="extractVocab()">✨ 提取词汇</button>
   </div>
 </div>
 </div>
@@ -294,11 +294,11 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 <div class="view" id="v-words">
 <div class="container">
   <div class="ftabs">
-    <button class="ftab active" onclick="filterWords('all',this)">å¨é¨ <span id="cnt-all"></span></button>
-    <button class="ftab" onclick="filterWords('new',this)">æªå­¦ <span id="cnt-new"></span></button>
-    <button class="ftab" onclick="filterWords('learning',this)">å­¦ä¹ ä¸­ <span id="cnt-learning"></span></button>
-    <button class="ftab" onclick="filterWords('mastered',this)">å·²ææ¡ <span id="cnt-mastered"></span></button>
-    <button class="ftab ftab-star" onclick="filterWords('starred',this)">â­ æ¶è <span id="cnt-star"></span></button>
+    <button class="ftab active" onclick="filterWords('all',this)">全部 <span id="cnt-all"></span></button>
+    <button class="ftab" onclick="filterWords('new',this)">未学 <span id="cnt-new"></span></button>
+    <button class="ftab" onclick="filterWords('learning',this)">学习中 <span id="cnt-learning"></span></button>
+    <button class="ftab" onclick="filterWords('mastered',this)">已掌握 <span id="cnt-mastered"></span></button>
+    <button class="ftab ftab-star" onclick="filterWords('starred',this)">⭐ 收藏 <span id="cnt-star"></span></button>
   </div>
   <div id="words-grid"></div>
 </div>
@@ -308,15 +308,15 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 <div class="view" id="v-stats">
 <div class="container">
   <div class="stats-grid">
-    <div class="stat-box"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">æ»è¯æ±</div></div>
-    <div class="stat-box"><div class="stat-num" id="s-mastered">0</div><div class="stat-lbl">å·²ææ¡</div></div>
-    <div class="stat-box"><div class="stat-num" id="s-streak">0</div><div class="stat-lbl">è¿ç»­å¤©æ°</div></div>
-    <div class="stat-box"><div class="stat-num" id="s-due">0</div><div class="stat-lbl">ä»æ¥å¾å¤ä¹ </div></div>
-    <div class="stat-box"><div class="stat-num" id="s-sessions">0</div><div class="stat-lbl">å­¦ä¹ æ¬¡æ°</div></div>
-    <div class="stat-box"><div class="stat-num" id="s-acc">â</div><div class="stat-lbl">æ­£ç¡®ç</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">总词汇</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-mastered">0</div><div class="stat-lbl">已掌握</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-streak">0</div><div class="stat-lbl">连续天数</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-due">0</div><div class="stat-lbl">今日待复习</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-sessions">0</div><div class="stat-lbl">学习次数</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-acc">—</div><div class="stat-lbl">正确率</div></div>
   </div>
   <div class="card">
-    <div class="card-title">ð ä¸»é¢åå¸</div>
+    <div class="card-title">📊 主题分布</div>
     <div id="chart"></div>
   </div>
 </div>
@@ -326,43 +326,43 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 <div class="view" id="v-setup">
 <div class="container">
   <div class="card">
-    <div class="card-title">ð API éç½®</div>
+    <div class="card-title">🔑 API 配置</div>
     <div class="field">
-      <label>Gemini API Keyï¼å¿å¡«ï¼</label>
+      <label>Gemini API Key（必填）</label>
       <input type="password" id="cfg-gemini" placeholder="AIza...">
-      <div class="hint">å¨ <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> è·å Â· ä½¿ç¨ gemini-2.5-flash-lite æ¨¡å</div>
+      <div class="hint">在 <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> 获取 · 使用 gemini-2.5-flash-lite 模型</div>
     </div>
     <div class="field">
-      <label>Google OAuth Client IDï¼Gmail è¿æ¥ + äºç«¯åæ­¥ç¨ï¼</label>
+      <label>Google OAuth Client ID（Gmail 连接 + 云端同步用）</label>
       <input type="text" id="cfg-gid" placeholder="xxx.apps.googleusercontent.com">
-      <div class="hint">Google Cloud Console â å­æ® â OAuth 2.0 å®¢æ·ç«¯ ID</div>
+      <div class="hint">Google Cloud Console → 凭据 → OAuth 2.0 客户端 ID</div>
     </div>
     <div class="field">
-      <label>èªå¨æ´æ°å°åï¼éå¡«ï¼</label>
+      <label>自动更新地址（选填）</label>
       <input type="text" id="cfg-update-url" placeholder="https://yourdomain.com/indolearn/version.json">
-      <div class="hint">å¡«å¥å App æ¯æ¬¡å¯å¨èªå¨æ£æ¥æ°çæ¬ãJSON æ ¼å¼ï¼<code>{"version_code":5,"version":"1.0.5","apk_url":"...","changelog":"..."}</code></div>
+      <div class="hint">填入后 App 每次启动自动检查新版本。JSON 格式：<code>{"version_code":5,"version":"1.0.5","apk_url":"...","changelog":"..."}</code></div>
     </div>
-    <button class="btn btn-primary btn-block" onclick="saveSettings()">ð¾ ä¿å­è®¾ç½®</button>
-    <button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="manualCheckUpdate()">ð ç«å³æ£æ¥æ´æ°</button>
+    <button class="btn btn-primary btn-block" onclick="saveSettings()">💾 保存设置</button>
+    <button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="manualCheckUpdate()">🔄 立即检查更新</button>
   </div>
 
   <div class="card">
-    <div class="card-title">âï¸ äºç«¯åæ­¥ï¼Google Driveï¼</div>
-    <p style="font-size:12px;color:var(--text2);margin-bottom:10px">æ°æ®å­å¨å¨ä½ ç Google Drive ç§æåºç¨æä»¶å¤¹ä¸­ï¼åªææ¬åºç¨å¯ä»¥è®¿é®ã</p>
+    <div class="card-title">☁️ 云端同步（Google Drive）</div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:10px">数据存储在你的 Google Drive 私有应用文件夹中，只有本应用可以访问。</p>
     <div class="drive-row">
-      <button class="btn btn-drive" id="drive-save-btn" onclick="driveSync('save')" disabled>â¬ï¸ å¤ä»½å°äºç«¯</button>
-      <button class="btn btn-drive" id="drive-load-btn" onclick="driveSync('load')" disabled>â¬ï¸ ä»äºç«¯æ¢å¤</button>
-      <button class="btn btn-ghost" onclick="connectDrive()">ð è¿æ¥ Drive</button>
+      <button class="btn btn-drive" id="drive-save-btn" onclick="driveSync('save')" disabled>⬆️ 备份到云端</button>
+      <button class="btn btn-drive" id="drive-load-btn" onclick="driveSync('load')" disabled>⬇️ 从云端恢复</button>
+      <button class="btn btn-ghost" onclick="connectDrive()">🔗 连接 Drive</button>
     </div>
     <div id="drive-status" style="font-size:12px;color:var(--text2);margin-top:8px"></div>
   </div>
 
   <div class="card">
-    <div class="card-title">ð¦ æ¬å°æ°æ®</div>
-    <p style="font-size:12px;color:var(--text2);margin-bottom:12px">å»ºè®®å®æå¯¼åºå¤ä»½ï¼æ¸é¤æµè§å¨ç¼å­ä¼ä¸¢å¤±æ¬å°æ°æ®ã</p>
-    <button class="btn btn-ghost" style="margin-right:8px" onclick="exportData()">ð¤ å¯¼åºå¤ä»½</button>
-    <button class="btn btn-ghost" style="margin-right:8px" onclick="importData()">ð¥ å¯¼å¥å¤ä»½</button>
-    <button class="btn btn-ghost" style="color:#c62828" onclick="clearAll()">ðï¸ æ¸ç©ºæ°æ®</button>
+    <div class="card-title">📦 本地数据</div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:12px">建议定期导出备份，清除浏览器缓存会丢失本地数据。</p>
+    <button class="btn btn-ghost" style="margin-right:8px" onclick="exportData()">📤 导出备份</button>
+    <button class="btn btn-ghost" style="margin-right:8px" onclick="importData()">📥 导入备份</button>
+    <button class="btn btn-ghost" style="color:#c62828" onclick="clearAll()">🗑️ 清空数据</button>
     <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImportFile(this)">
   </div>
 </div>
@@ -374,7 +374,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-// ââ STATE ââââââââââââââââââââââââââââââââââââââââââââââ
+// ── STATE ──────────────────────────────────────────────
 const KEY = 'indolearn3';
 let db = { vocab: [], settings: {}, meta: { streak:0, lastStudyDate:null, totalSessions:0 } };
 let queue = [], qIdx = 0, flipped = false, curFilter = 'all';
@@ -383,33 +383,33 @@ let activeImportTab = 'text';
 // Swipe state
 let touchStartX = 0, touchDeltaX = 0, touchActive = false;
 
-// ââ STORAGE ââââââââââââââââââââââââââââââââââââââââââââ
+// ── STORAGE ────────────────────────────────────────────
 function load() {
   try { const r = localStorage.getItem(KEY); if (r) db = {...db, ...JSON.parse(r)}; } catch(e) {}
 }
 function save() { localStorage.setItem(KEY, JSON.stringify(db)); }
 
-// ââ DARK MODE ââââââââââââââââââââââââââââââââââââââââââ
+// ── DARK MODE ──────────────────────────────────────────
 function toggleDark() {
   const html = document.documentElement;
   const isDark = html.getAttribute('data-theme') === 'dark';
   html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-  document.getElementById('dark-btn').textContent = isDark ? 'ð' : 'âï¸';
+  document.getElementById('dark-btn').textContent = isDark ? '🌙' : '☀️';
   db.settings.darkMode = !isDark; save();
 }
 function applyDarkMode() {
   if (db.settings.darkMode) {
     document.documentElement.setAttribute('data-theme','dark');
-    document.getElementById('dark-btn').textContent = 'âï¸';
+    document.getElementById('dark-btn').textContent = '☀️';
   }
 }
 
-// ââ SETTINGS âââââââââââââââââââââââââââââââââââââââââââ
+// ── SETTINGS ───────────────────────────────────────────
 function saveSettings() {
   db.settings.geminiKey = document.getElementById('cfg-gemini').value.trim();
   db.settings.googleClientId = document.getElementById('cfg-gid').value.trim();
   db.settings.updateUrl = document.getElementById('cfg-update-url').value.trim();
-  save(); toast('è®¾ç½®å·²ä¿å­ â');
+  save(); toast('设置已保存 ✓');
 }
 function loadSettingsUI() {
   document.getElementById('cfg-gemini').value = db.settings.geminiKey || '';
@@ -418,13 +418,13 @@ function loadSettingsUI() {
 }
 function manualCheckUpdate() {
   const url = db.settings.updateUrl;
-  if (!url) { toast('è¯·åå¡«åèªå¨æ´æ°å°å'); return; }
-  if (!window.AndroidBridge) { toast('ä» Android çæ¯æèªå¨æ´æ°'); return; }
+  if (!url) { toast('请先填写自动更新地址'); return; }
+  if (!window.AndroidBridge) { toast('仅 Android 版支持自动更新'); return; }
   window.AndroidBridge.checkForUpdate(url);
-  toast('æ­£å¨æ£æ¥æ´æ°...');
+  toast('正在检查更新...');
 }
 
-// ââ NAV ââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── NAV ────────────────────────────────────────────────
 function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -436,7 +436,7 @@ function showView(name) {
   if (name === 'stats') renderStats();
 }
 
-// ââ IMPORT TABS ââââââââââââââââââââââââââââââââââââââââ
+// ── IMPORT TABS ────────────────────────────────────────
 function switchImportTab(tab, btn) {
   activeImportTab = tab;
   document.querySelectorAll('.itab').forEach(t=>t.classList.remove('active'));
@@ -445,7 +445,7 @@ function switchImportTab(tab, btn) {
   document.getElementById('ip-' + tab).classList.add('active');
 }
 
-// ââ SM-2 âââââââââââââââââââââââââââââââââââââââââââââââ
+// ── SM-2 ───────────────────────────────────────────────
 function sm2(card, grade) {
   let {ef=2.5, interval=0, reps=0} = card;
   const q = [0,3,4,5][grade];
@@ -466,7 +466,7 @@ function status(w) {
 }
 function due() { return db.vocab.filter(w => !w.nextReview || w.nextReview <= Date.now()); }
 
-// ââ STAR / FAVORITES âââââââââââââââââââââââââââââââââââ
+// ── STAR / FAVORITES ───────────────────────────────────
 function toggleStar(id, event) {
   if (event) event.stopPropagation();
   const i = db.vocab.findIndex(v=>v.id===id);
@@ -476,19 +476,19 @@ function toggleStar(id, event) {
   // Update star button in flashcard if present
   const btn = document.querySelector('.fc-star');
   if (btn) {
-    btn.textContent = db.vocab[i].starred ? 'â­' : 'â';
+    btn.textContent = db.vocab[i].starred ? '⭐' : '☆';
     btn.classList.toggle('starred', db.vocab[i].starred);
   }
   // Update star in word grid if present
   const wbtn = document.querySelector(`.wc-star[data-id="${id}"]`);
   if (wbtn) {
-    wbtn.textContent = db.vocab[i].starred ? 'â­' : 'â';
+    wbtn.textContent = db.vocab[i].starred ? '⭐' : '☆';
     wbtn.classList.toggle('starred', db.vocab[i].starred);
   }
-  toast(db.vocab[i].starred ? 'å·²å å¥æ¶è â­' : 'å·²åæ¶æ¶è');
+  toast(db.vocab[i].starred ? '已加入收藏 ⭐' : '已取消收藏');
 }
 
-// ââ TTS ââââââââââââââââââââââââââââââââââââââââââââââââ
+// ── TTS ────────────────────────────────────────────────
 // Singleton audio element for online TTS fallback (avoids overlapping)
 let _ttsAudio = null;
 
@@ -526,7 +526,7 @@ function speakOnline(text) {
   _ttsAudio.play().catch(() => {});
 }
 
-// ââ WIKI IMAGE âââââââââââââââââââââââââââââââââââââââââ
+// ── WIKI IMAGE ─────────────────────────────────────────
 async function wikiImg(word) {
   try {
     const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(word)}`);
@@ -535,11 +535,11 @@ async function wikiImg(word) {
   } catch { return null; }
 }
 
-// ââ GEMINI âââââââââââââââââââââââââââââââââââââââââââââ
+// ── GEMINI ─────────────────────────────────────────────
 const GURL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
 async function gemini(prompt) {
   const key = db.settings.geminiKey;
-  if (!key) throw new Error('è¯·åå¨è®¾ç½®ä¸­å¡«å Gemini API Key');
+  if (!key) throw new Error('请先在设置中填写 Gemini API Key');
   const r = await fetch(`${GURL}?key=${key}`, {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:{temperature:0.4}})
@@ -549,7 +549,7 @@ async function gemini(prompt) {
   return d?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
-// ââ EXTRACT VOCAB ââââââââââââââââââââââââââââââââââââââ
+// ── EXTRACT VOCAB ──────────────────────────────────────
 function getInputText() {
   if (activeImportTab === 'chat') return document.getElementById('input-chat').value.trim();
   return document.getElementById('input-text').value.trim();
@@ -557,44 +557,44 @@ function getInputText() {
 
 async function extractVocab(fromGmail=false) {
   const text = fromGmail ? document.getElementById('input-text').value.trim() : getInputText();
-  if (!text) { setStatus('import','è¯·åè¾å¥ææ¬','error'); return; }
-  if (!db.settings.geminiKey) { setStatus('import','è¯·åå¨è®¾ç½®ä¸­å¡«å Gemini API Key','error'); showView('setup'); return; }
+  if (!text) { setStatus('import','请先输入文本','error'); return; }
+  if (!db.settings.geminiKey) { setStatus('import','请先在设置中填写 Gemini API Key','error'); showView('setup'); return; }
 
   const btn = document.getElementById('extract-btn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> æ­£å¨åæ...';
-  setStatus('import','â³ AI æ­£å¨æåè¯æ±...','info');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> 正在分析...';
+  setStatus('import','⏳ AI 正在提取词汇...','info');
 
   try {
-    const prompt = `ä½ æ¯å¸®å©ä¸­ææ¯è¯­èå­¦ä¹ å°å°¼è¯­çè¯æ±æåå©æãåæä»¥ä¸ææ¬ï¼æå 8-15 ä¸ªæä»·å¼çè¯æ±ã
+    const prompt = `你是帮助中文母语者学习印尼语的词汇提取助手。分析以下文本，提取 8-15 个有价值的词汇。
 
-è¾åºè¦æ±ï¼æ¯ä¸ªå­æ®µé½å¿é¡»æ»¡è¶³ï¼ï¼
-1. "chinese"ï¼âå¿é¡»æ¯ä¸­ææ±å­âï¼2-6å­ï¼ä¾å¦ãæ¶é¿ããæç»­æ¶é´ããä»åºããä¼è®®ããç»å¯¹ä¸åè®¸åºç°è±æå­æ¯ã
-2. "english"ï¼è±æéä¹ï¼ç¨äºå¾çæç´¢ï¼ä¾å¦ "duration"ã"repository"ã
-3. "mnemonic"ï¼âå¿é¡»å¨é¨ç¨ä¸­æâåè®°å¿æå·§ãå¯ä»¥æåå°å°¼è¯­åé³ä¸è±æ/ä¸­æçç¸ä¼¼æ§ãä¸åè®¸åºç°è±æå¥å­ã
-4. "pronunciation"ï¼ç¨è¿å­ç¬¦åé³èï¼å¤§åéè¯»é³èï¼ä¾å¦ï¼du-RA-siãbe-LA-jarã
-5. "sourceLang"ï¼åæè¯­è¨ï¼å¡« ChineseãEnglish æ Indonesianã
-6. "related"ï¼2-4 ä¸ªåè¯æ ¹çå°å°¼è¯­ååå½¢å¼ï¼ä¾å¦ ["bekerja","pekerjaan","pekerja"]ãè¥æ ææ¾è¯æ ¹åååå¡« []ã
+输出要求（每个字段都必须满足）：
+1. "chinese"：★必须是中文汉字★，2-6字，例如「时长」「持续时间」「仓库」「会议」。绝对不允许出现英文字母。
+2. "english"：英文释义，用于图片搜索，例如 "duration"、"repository"。
+3. "mnemonic"：★必须全部用中文★写记忆技巧。可以提及印尼语发音与英文/中文的相似性。不允许出现英文句子。
+4. "pronunciation"：用连字符分音节，大写重读音节，例如：du-RA-si、be-LA-jar。
+5. "sourceLang"：原文语言，填 Chinese、English 或 Indonesian。
+6. "related"：2-4 个同词根的印尼语变化形式，例如 ["bekerja","pekerjaan","pekerja"]。若无明显词根变化则填 []。
 
-åªè¿ååæ³ JSON æ°ç»ï¼ä¸è¦ markdown ä»£ç åï¼
+只返回合法 JSON 数组，不要 markdown 代码块：
 [{
-  "sourceWord": "åæä¸­çè¯",
+  "sourceWord": "原文中的词",
   "sourceLang": "Chinese/English/Indonesian",
-  "indonesian": "å°å°¼è¯­åè¯",
-  "pronunciation": "é³èåé³ï¼å¿å¡«ï¼",
-  "chinese": "ä¸­æéä¹ï¼å¿é¡»æ¯æ±å­ï¼",
+  "indonesian": "印尼语单词",
+  "pronunciation": "音节发音（必填）",
+  "chinese": "中文释义（必须是汉字）",
   "english": "English meaning",
-  "emoji": "åä¸ªemoji",
-  "mnemonic": "ä¸­æè®°å¿æå·§",
-  "related": ["è¯æ ¹åä½1","è¯æ ¹åä½2"],
+  "emoji": "单个emoji",
+  "mnemonic": "中文记忆技巧",
+  "related": ["词根变体1","词根变体2"],
   "topic": "Bisnis/Teknologi/Kehidupan/Makanan/Perjalanan/Kesehatan/Pendidikan/Lainnya"
 }]
 
-åæï¼
+原文：
 ${text.substring(0,3000)}`;
 
     const resp = await gemini(prompt);
     const s = resp.indexOf('['), e = resp.lastIndexOf(']');
-    if (s===-1) throw new Error('AI è¿åæ ¼å¼æè¯¯ï¼è¯·éè¯');
+    if (s===-1) throw new Error('AI 返回格式有误，请重试');
     const words = JSON.parse(resp.substring(s, e+1));
 
     let added = 0;
@@ -609,15 +609,15 @@ ${text.substring(0,3000)}`;
     }
     save();
     fetchImagesBackground(db.vocab.filter(v => !v.imageUrl));
-    setStatus('import', `â æå ${words.length} ä¸ªè¯æ±ï¼æ°å¢ ${added} ä¸ªãç¹"å­¦ä¹ "å¼å§èåè¯ï¼`, 'success');
+    setStatus('import', `✅ 提取 ${words.length} 个词汇，新增 ${added} 个。点"学习"开始背单词！`, 'success');
     if (!fromGmail) {
       document.getElementById('input-text').value = '';
       document.getElementById('input-chat').value = '';
     }
   } catch(e) {
-    setStatus('import', `â ${e.message}`, 'error');
+    setStatus('import', `❌ ${e.message}`, 'error');
   } finally {
-    btn.disabled = false; btn.innerHTML = 'â¨ æåè¯æ±';
+    btn.disabled = false; btn.innerHTML = '✨ 提取词汇';
   }
 }
 
@@ -632,7 +632,7 @@ async function fetchImagesBackground(words) {
   }
 }
 
-// ââ PDF IMPORT âââââââââââââââââââââââââââââââââââââââââ
+// ── PDF IMPORT ─────────────────────────────────────────
 function handlePdfDrop(event) {
   event.preventDefault();
   document.getElementById('pdf-zone').classList.remove('drag-over');
@@ -644,7 +644,7 @@ async function handlePdfFile(file) {
   if (!file) return;
   const prog = document.getElementById('pdf-progress');
   prog.style.display = 'block';
-  prog.textContent = `ð æ­£å¨è§£æ ${file.name}...`;
+  prog.textContent = `📄 正在解析 ${file.name}...`;
   try {
     const buf = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({data: buf}).promise;
@@ -653,35 +653,35 @@ async function handlePdfFile(file) {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
       text += content.items.map(item => item.str).join(' ') + '\n';
-      prog.textContent = `ð è§£æä¸­... ${i}/${pdf.numPages} é¡µ`;
+      prog.textContent = `📄 解析中... ${i}/${pdf.numPages} 页`;
     }
-    prog.textContent = `â è§£æå®æï¼å± ${pdf.numPages} é¡µï¼${text.length} å­ç¬¦`;
+    prog.textContent = `✅ 解析完成，共 ${pdf.numPages} 页，${text.length} 字符`;
     // Switch to text tab and fill
     document.getElementById('input-text').value = text.substring(0, 4000);
     switchImportTab('text', document.querySelectorAll('.itab')[0]);
-    toast('PDF è§£æå®æï¼ç¹å»ãæåè¯æ±ãå¼å§åæ');
+    toast('PDF 解析完成，点击「提取词汇」开始分析');
   } catch(e) {
-    prog.textContent = `â è§£æå¤±è´¥: ${e.message}`;
+    prog.textContent = `❌ 解析失败: ${e.message}`;
   }
 }
 
-// ââ GMAIL ââââââââââââââââââââââââââââââââââââââââââââââ
+// ── GMAIL ──────────────────────────────────────────────
 function connectGmail() {
-  if (!db.settings.googleClientId) { toast('è¯·åå¨è®¾ç½®ä¸­å¡«å Google OAuth Client ID'); showView('setup'); return; }
+  if (!db.settings.googleClientId) { toast('请先在设置中填写 Google OAuth Client ID'); showView('setup'); return; }
 
-  // Android native OAuth â opens Chrome Custom Tab, result comes back via onGmailTokenReceived()
+  // Android native OAuth — opens Chrome Custom Tab, result comes back via onGmailTokenReceived()
   if (window.AndroidBridge) {
     window.AndroidBridge.startGmailOAuth(db.settings.googleClientId);
-    toast('æ­£å¨è·³è½¬ Google ææ...');
+    toast('正在跳转 Google 授权...');
     return;
   }
 
-  if (!window.google?.accounts?.oauth2) { toast('Google åºå°æªå è½½ï¼è¯·ç¨å'); return; }
+  if (!window.google?.accounts?.oauth2) { toast('Google 库尚未加载，请稍候'); return; }
   const client = window.google.accounts.oauth2.initTokenClient({
     client_id: db.settings.googleClientId,
     scope: 'https://www.googleapis.com/auth/gmail.readonly',
     callback: r => {
-      if (r.error) { toast('è¿æ¥å¤±è´¥: '+r.error); return; }
+      if (r.error) { toast('连接失败: '+r.error); return; }
       onGmailTokenReceived(r.access_token);
     }
   });
@@ -691,12 +691,12 @@ function connectGmail() {
 // Called by Android (via evaluateJavascript) after OAuth completes,
 // and also by the GIS callback and silent reconnect path.
 function onGmailTokenReceived(token) {
-  if (!token) { toast('Gmail ææå¤±è´¥'); return; }
+  if (!token) { toast('Gmail 授权失败'); return; }
   gmailToken = token;
   document.getElementById('gm-off').style.display = 'none';
   document.getElementById('gm-on').style.display = 'block';
-  document.getElementById('gmail-badge').textContent = 'â å·²è¿æ¥';
-  toast('Gmail è¿æ¥æåï¼å¼å§èªå¨å¯¼å¥é®ä»¶...');
+  document.getElementById('gmail-badge').textContent = '✓ 已连接';
+  toast('Gmail 连接成功，开始自动导入邮件...');
   autoImportAllEmails();
 }
 
@@ -739,7 +739,7 @@ async function fetchEmailFull(id) {
 
 async function autoImportAllEmails() {
   if (!gmailToken) return;
-  setGmailProgress('æ­£å¨è·åé®ä»¶åè¡¨...');
+  setGmailProgress('正在获取邮件列表...');
   try {
     const SPAM_SENDERS = /noreply|no-reply|donotreply|newsletter|notifications?@|support@|mailer@|bounce@|unsubscribe/i;
     let allIds = [], pageToken = null;
@@ -747,15 +747,15 @@ async function autoImportAllEmails() {
       const q = encodeURIComponent('(category:primary OR in:sent) -label:spam');
       const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=50&q=${q}` + (pageToken?`&pageToken=${pageToken}`:'');
       const r = await fetch(url, {headers:{Authorization:`Bearer ${gmailToken}`}});
-      if (!r.ok) { const eb=await r.json().catch(()=>({})); throw new Error(`è·åå¤±è´¥ (${r.status}): ${eb?.error?.message||''}`); }
+      if (!r.ok) { const eb=await r.json().catch(()=>({})); throw new Error(`获取失败 (${r.status}): ${eb?.error?.message||''}`); }
       const d = await r.json();
       if (d.messages?.length) allIds.push(...d.messages.map(m=>m.id));
       if (!d.nextPageToken || allIds.length >= 50) break;
       pageToken = d.nextPageToken;
     }
     allIds = allIds.slice(0,50);
-    if (!allIds.length) { setGmailProgress('é®ç®±ä¸­æ²¡ææ¾å°é®ä»¶'); return; }
-    setGmailProgress(`æ¾å° ${allIds.length} å°é®ä»¶ï¼æ­£å¨è¯»å...`);
+    if (!allIds.length) { setGmailProgress('邮箱中没有找到邮件'); return; }
+    setGmailProgress(`找到 ${allIds.length} 封邮件，正在读取...`);
     let combinedText='', fetched=0, skipped=0;
     for (let i=0; i<allIds.length; i+=10) {
       const batch = allIds.slice(i,i+10);
@@ -766,34 +766,34 @@ async function autoImportAllEmails() {
         const from = msg.payload?.headers?.find(h=>h.name==='From')?.value||'';
         const body = extractEmailBody(msg.payload);
         if (SPAM_SENDERS.test(from)||body.length<80) { skipped++; continue; }
-        combinedText += (subj?`ã${subj}ã`:'')+body+'\n\n';
+        combinedText += (subj?`【${subj}】`:'')+body+'\n\n';
         fetched++;
       }
-      setGmailProgress(`å·²è¯»å ${fetched+skipped}/${allIds.length} å°ï¼è¿æ»¤ ${skipped} å°å¹¿åï¼...`);
+      setGmailProgress(`已读取 ${fetched+skipped}/${allIds.length} 封（过滤 ${skipped} 封广告）...`);
     }
-    if (combinedText.length<50) { setGmailProgress('ææé®ä»¶åå®¹ä¸è¶³ï¼æ æ³æåè¯æ±'); return; }
-    setGmailProgress(`ææé®ä»¶ ${fetched} å°ï¼æ­£å¨æåè¯æ±...`);
+    if (combinedText.length<50) { setGmailProgress('有效邮件内容不足，无法提取词汇'); return; }
+    setGmailProgress(`有效邮件 ${fetched} 封，正在提取词汇...`);
     document.getElementById('input-text').value = combinedText.substring(0,4000);
     await extractVocab(true);
-    setGmailProgress(`â å¯¼å¥å®æï¼ææ ${fetched} å°ï¼è¿æ»¤ ${skipped} å°ï¼`);
-  } catch(e) { setGmailProgress(`â ${e.message}`); }
+    setGmailProgress(`✅ 导入完成（有效 ${fetched} 封，过滤 ${skipped} 封）`);
+  } catch(e) { setGmailProgress(`❌ ${e.message}`); }
 }
 
-// ââ AUTO-UPDATE ââââââââââââââââââââââââââââââââââââââââ
+// ── AUTO-UPDATE ────────────────────────────────────────
 // Called by Android when a newer version_code is detected in version.json
 function onUpdateAvailable(version, apkUrl, changelog) {
   const msg = changelog
-    ? `åç°æ°çæ¬ v${version}\n${changelog}\n\næ¯å¦ç«å³ä¸è½½å®è£ï¼`
-    : `åç°æ°çæ¬ v${version}ï¼æ¯å¦ç«å³ä¸è½½å®è£ï¼`;
+    ? `发现新版本 v${version}\n${changelog}\n\n是否立即下载安装？`
+    : `发现新版本 v${version}，是否立即下载安装？`;
   if (confirm(msg)) {
     window.AndroidBridge?.downloadUpdate(apkUrl, version);
-    toast('æ­£å¨åå°ä¸è½½ï¼å®æåä¼å¼¹åºå®è£æç¤º â¬ï¸');
+    toast('正在后台下载，完成后会弹出安装提示 ⬇️');
   }
 }
 
 // Silent Gmail reconnect
 function trySilentGmailConnect() {
-  // Android uses native OAuth â no silent reconnect needed
+  // Android uses native OAuth — no silent reconnect needed
   if (window.AndroidBridge) return;
   if (!db.settings.googleClientId) return;
   if (!window.google?.accounts?.oauth2) { setTimeout(trySilentGmailConnect, 1500); return; }
@@ -804,46 +804,46 @@ function trySilentGmailConnect() {
     callback: r => {
       if (r.error || !r.access_token) return;
       onGmailTokenReceived(r.access_token);
-      setGmailProgress('å·²èªå¨éè¿ï¼å¦éå·æ°è¯æ±ç¹å»ãéæ°å¯¼å¥ã');
+      setGmailProgress('已自动重连，如需刷新词汇点击「重新导入」');
     }
   }).requestAccessToken();
 }
 
-// ââ GOOGLE DRIVE SYNC ââââââââââââââââââââââââââââââââââ
+// ── GOOGLE DRIVE SYNC ──────────────────────────────────
 const DRIVE_FILE = 'indolearn_backup.json';
 
 function connectDrive() {
-  if (!db.settings.googleClientId) { toast('è¯·åå¡«å OAuth Client ID'); showView('setup'); return; }
+  if (!db.settings.googleClientId) { toast('请先填写 OAuth Client ID'); showView('setup'); return; }
   if (window.AndroidBridge) {
     window.AndroidBridge.startDriveOAuth(db.settings.googleClientId);
     return;
   }
-  if (!window.google?.accounts?.oauth2) { toast('Google åºå°æªå è½½'); return; }
+  if (!window.google?.accounts?.oauth2) { toast('Google 库尚未加载'); return; }
   window.google.accounts.oauth2.initTokenClient({
     client_id: db.settings.googleClientId,
     scope: 'https://www.googleapis.com/auth/drive.appdata',
     callback: r => {
-      if (r.error) { toast('Drive è¿æ¥å¤±è´¥: '+r.error); return; }
+      if (r.error) { toast('Drive 连接失败: '+r.error); return; }
       onDriveTokenReceived(r.access_token);
     }
   }).requestAccessToken();
 }
 
 function onDriveTokenReceived(token) {
-  if (!token) { toast('Drive ææå¤±è´¥'); return; }
+  if (!token) { toast('Drive 授权失败'); return; }
   driveToken = token;
   document.getElementById('drive-save-btn').disabled = false;
   document.getElementById('drive-load-btn').disabled = false;
-  document.getElementById('drive-status').textContent = 'â Drive å·²è¿æ¥';
-  toast('Google Drive è¿æ¥æå');
+  document.getElementById('drive-status').textContent = '✓ Drive 已连接';
+  toast('Google Drive 连接成功');
 }
 
 async function driveSync(action) {
-  if (!driveToken) { toast('è¯·åè¿æ¥ Google Drive'); return; }
+  if (!driveToken) { toast('请先连接 Google Drive'); return; }
   const statusEl = document.getElementById('drive-status');
 
   if (action === 'save') {
-    statusEl.textContent = 'â¬ï¸ æ­£å¨å¤ä»½...';
+    statusEl.textContent = '⬆️ 正在备份...';
     try {
       // Find existing file
       const list = await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name="'+DRIVE_FILE+'"',
@@ -860,43 +860,43 @@ async function driveSync(action) {
       const method = fileId ? 'PATCH' : 'POST';
       const res = await fetch(url, {method, headers:{Authorization:`Bearer ${driveToken}`}, body:form});
       if (!res.ok) throw new Error((await res.json())?.error?.message);
-      statusEl.textContent = `â å¤ä»½æå Â· ${new Date().toLocaleString()}`;
-      toast('å·²å¤ä»½å° Google Drive âï¸');
-    } catch(e) { statusEl.textContent = `â å¤ä»½å¤±è´¥: ${e.message}`; }
+      statusEl.textContent = `✅ 备份成功 · ${new Date().toLocaleString()}`;
+      toast('已备份到 Google Drive ☁️');
+    } catch(e) { statusEl.textContent = `❌ 备份失败: ${e.message}`; }
 
   } else if (action === 'load') {
-    if (!confirm('ä» Drive æ¢å¤ä¼è¦çå½åæ¬å°æ°æ®ï¼ç¡®è®¤ç»§ç»­ï¼')) return;
-    statusEl.textContent = 'â¬ï¸ æ­£å¨æ¢å¤...';
+    if (!confirm('从 Drive 恢复会覆盖当前本地数据，确认继续？')) return;
+    statusEl.textContent = '⬇️ 正在恢复...';
     try {
       const list = await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name="'+DRIVE_FILE+'"',
         {headers:{Authorization:`Bearer ${driveToken}`}}).then(r=>r.json());
       const fileId = list.files?.[0]?.id;
-      if (!fileId) { statusEl.textContent = 'äºç«¯ææ å¤ä»½'; return; }
+      if (!fileId) { statusEl.textContent = '云端暂无备份'; return; }
       const content = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
         {headers:{Authorization:`Bearer ${driveToken}`}}).then(r=>r.json());
       db = {...db, ...content};
       save(); loadSettingsUI();
-      statusEl.textContent = `â æ¢å¤æå Â· ${db.vocab.length} ä¸ªè¯æ±`;
-      toast('æ°æ®å·²ä» Drive æ¢å¤ â');
-    } catch(e) { statusEl.textContent = `â æ¢å¤å¤±è´¥: ${e.message}`; }
+      statusEl.textContent = `✅ 恢复成功 · ${db.vocab.length} 个词汇`;
+      toast('数据已从 Drive 恢复 ✓');
+    } catch(e) { statusEl.textContent = `❌ 恢复失败: ${e.message}`; }
   }
 }
 
-// ââ STUDY ââââââââââââââââââââââââââââââââââââââââââââââ
+// ── STUDY ──────────────────────────────────────────────
 function renderStudy() {
   const c = document.getElementById('study-content');
   if (!db.vocab.length) {
-    c.innerHTML = `<div class="empty"><div class="icon">ð</div><h3>è¯åºä¸ºç©º</h3><p>åå»"å¯¼å¥"é¡µé¢æåè¯æ±</p>
-      <button class="btn btn-primary" style="margin-top:14px" onclick="showView('import')">å»å¯¼å¥</button></div>`;
+    c.innerHTML = `<div class="empty"><div class="icon">📚</div><h3>词库为空</h3><p>先去"导入"页面提取词汇</p>
+      <button class="btn btn-primary" style="margin-top:14px" onclick="showView('import')">去导入</button></div>`;
     return;
   }
   const d = due();
   if (!d.length) {
     const nxt = db.vocab.filter(w=>w.nextReview).sort((a,b)=>a.nextReview-b.nextReview)[0];
     const mins = nxt ? Math.ceil((nxt.nextReview-Date.now())/60000) : 0;
-    c.innerHTML = `<div class="empty"><div class="icon">ð</div><h3>ä»æ¥å­¦ä¹ å®æï¼</h3>
-      <p>${mins>0?`${mins} åéåææ°å¤ä¹ `:'æå¤©ç»§ç»­'}</p>
-      <button class="btn btn-primary" style="margin-top:14px" onclick="startAll()">å¤ä¹ å¨é¨</button></div>`;
+    c.innerHTML = `<div class="empty"><div class="icon">🎉</div><h3>今日学习完成！</h3>
+      <p>${mins>0?`${mins} 分钟后有新复习`:'明天继续'}</p>
+      <button class="btn btn-primary" style="margin-top:14px" onclick="startAll()">复习全部</button></div>`;
     return;
   }
   queue = [...d].sort((a,b)=>(a.nextReview||0)-(b.nextReview||0));
@@ -910,19 +910,19 @@ function renderCard() {
   if (qIdx >= queue.length) {
     db.meta.totalSessions=(db.meta.totalSessions||0)+1;
     db.meta.lastStudyDate=new Date().toDateString(); save();
-    c.innerHTML=`<div class="empty"><div class="icon">â¨</div><h3>æ¬è½®å®æï¼</h3>
-      <p>å¤ä¹ äº ${queue.length} ä¸ªåè¯</p>
-      <button class="btn btn-primary" style="margin-top:14px" onclick="renderStudy()">æ¥çè¿åº¦</button></div>`;
+    c.innerHTML=`<div class="empty"><div class="icon">✨</div><h3>本轮完成！</h3>
+      <p>复习了 ${queue.length} 个单词</p>
+      <button class="btn btn-primary" style="margin-top:14px" onclick="renderStudy()">查看进度</button></div>`;
     return;
   }
   const w = queue[qIdx];
   const pct = Math.round((qIdx/queue.length)*100);
   flipped = false;
 
-  const topicZH = {'Bisnis':'åå¡','Teknologi':'ç§æ','Kehidupan':'çæ´»','Makanan':'é¥®é£',
-    'Perjalanan':'æè¡','Kesehatan':'å¥åº·','Pendidikan':'æè²','Lainnya':'å¶ä»'};
+  const topicZH = {'Bisnis':'商务','Teknologi':'科技','Kehidupan':'生活','Makanan':'饮食',
+    'Perjalanan':'旅行','Kesehatan':'健康','Pendidikan':'教育','Lainnya':'其他'};
   const relatedHtml = w.related?.length
-    ? `<div class="fc-sec"><div class="fc-sec-lbl">ð¿ è¯æ ¹èæ³</div>
+    ? `<div class="fc-sec"><div class="fc-sec-lbl">🌿 词根联想</div>
         <div>${w.related.map(r=>`<span class="root-tag">${esc(r)}</span>`).join('')}</div></div>`
     : '';
 
@@ -930,54 +930,54 @@ function renderCard() {
     <div class="study-info">
       <span style="font-weight:600">${qIdx+1}/${queue.length}</span>
       <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
-      <span>${queue.length-qIdx-1} å©ä½</span>
+      <span>${queue.length-qIdx-1} 剩余</span>
     </div>
 
     <div class="fc-scene" id="fcs" onclick="handleCardClick()">
       <div class="swipe-overlay" id="swipe-overlay"></div>
       <div class="fc-inner" id="fci">
         <div class="fc-face fc-front">
-          <button class="fc-star ${w.starred?'starred':''}" onclick="toggleStar(${w.id},event)">${w.starred?'â­':'â'}</button>
+          <button class="fc-star ${w.starred?'starred':''}" onclick="toggleStar(${w.id},event)">${w.starred?'⭐':'☆'}</button>
           <span class="fc-badge">${esc(topicZH[w.topic]||w.topic||'')}</span>
-          <div class="fc-emoji">${w.emoji||'ð'}</div>
+          <div class="fc-emoji">${w.emoji||'📖'}</div>
           <div class="fc-word">${esc(w.sourceWord||w.indonesian)}</div>
           <div class="fc-lang">${w.sourceLang||'Indonesian'}</div>
-          <div class="fc-hint">ç¹å»ç¿»è½¬ Â· å·¦æ»ä¸ä¼ Â· å³æ»è®°å¾ ð</div>
+          <div class="fc-hint">点击翻转 · 左滑不会 · 右滑记得 👆</div>
         </div>
         <div class="fc-face fc-back" id="fc-back">
           ${w.imageUrl?`<img class="fc-img" src="${w.imageUrl}" onerror="this.style.display='none'" alt="">`:'' }
           <button class="fc-audio" data-w="${esc(w.indonesian)}" onclick="event.stopPropagation();speak(this.dataset.w)">
-            ð æè¯»å°å°¼è¯­
+            🔊 朗读印尼语
           </button>
           <div class="fc-ido">${esc(w.indonesian)}</div>
           <div class="fc-pron">${esc(w.pronunciation||'')}</div>
           <div class="fc-sec" style="width:100%;margin-top:4px">
             <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;text-align:center;align-items:flex-start">
-              ${w.chinese?`<div><div class="fc-sec-lbl">ä¸­æ</div><div class="fc-sec-txt" style="font-size:18px;font-weight:700;color:var(--text)">${esc(w.chinese)}</div></div>`:''}
+              ${w.chinese?`<div><div class="fc-sec-lbl">中文</div><div class="fc-sec-txt" style="font-size:18px;font-weight:700;color:var(--text)">${esc(w.chinese)}</div></div>`:''}
               ${w.english?`<div><div class="fc-sec-lbl">English</div><div class="fc-sec-txt" style="font-size:15px;color:var(--text2)">${esc(w.english)}</div></div>`:''}
-              ${w.sourceWord&&w.sourceLang==='Chinese'?`<div><div class="fc-sec-lbl">åæ</div><div class="fc-sec-txt" style="font-size:15px;color:var(--text2)">${esc(w.sourceWord)}</div></div>`:''}
+              ${w.sourceWord&&w.sourceLang==='Chinese'?`<div><div class="fc-sec-lbl">原文</div><div class="fc-sec-txt" style="font-size:15px;color:var(--text2)">${esc(w.sourceWord)}</div></div>`:''}
             </div>
           </div>
-          ${w.mnemonic?`<div class="fc-sec"><div class="fc-sec-lbl">ð¡ è®°å¿æå·§</div><div class="fc-sec-txt">${esc(w.mnemonic)}</div></div>`:''}
+          ${w.mnemonic?`<div class="fc-sec"><div class="fc-sec-lbl">💡 记忆技巧</div><div class="fc-sec-txt">${esc(w.mnemonic)}</div></div>`:''}
           ${relatedHtml}
         </div>
       </div>
     </div>
 
-    <div class="swipe-hint" id="swipe-hint">â å·¦æ»ä¸ä¼ &nbsp;|&nbsp; å³æ»è®°å¾ â</div>
+    <div class="swipe-hint" id="swipe-hint">← 左滑不会 &nbsp;|&nbsp; 右滑记得 →</div>
     <div class="rating-btns" id="rbtns" style="display:none">
-      <button class="rb rb-again" onclick="rate(0)"><span>ð´</span>ä¸ä¼</button>
-      <button class="rb rb-hard"  onclick="rate(1)"><span>ð¡</span>é¾</button>
-      <button class="rb rb-good"  onclick="rate(2)"><span>ð¢</span>è®°å¾</button>
-      <button class="rb rb-easy"  onclick="rate(3)"><span>â­</span>ç®å</button>
+      <button class="rb rb-again" onclick="rate(0)"><span>🔴</span>不会</button>
+      <button class="rb rb-hard"  onclick="rate(1)"><span>🟡</span>难</button>
+      <button class="rb rb-good"  onclick="rate(2)"><span>🟢</span>记得</button>
+      <button class="rb rb-easy"  onclick="rate(3)"><span>⭐</span>简单</button>
     </div>
-    <div id="flip-hint" style="text-align:center;font-size:11px;color:var(--text3);margin-top:6px">ç¿»è½¬åéæ©ææ¡ç¨åº¦</div>
+    <div id="flip-hint" style="text-align:center;font-size:11px;color:var(--text3);margin-top:6px">翻转后选择掌握程度</div>
   `;
 
   initSwipe();
 }
 
-// ââ SWIPE GESTURES âââââââââââââââââââââââââââââââââââââ
+// ── SWIPE GESTURES ─────────────────────────────────────
 function initSwipe() {
   const el = document.getElementById('fcs');
   if (!el) return;
@@ -999,9 +999,9 @@ function initSwipe() {
     if (inner) inner.style.transform = `translateX(${touchDeltaX}px) rotate(${touchDeltaX*0.025}deg)`;
     if (overlay) {
       if (touchDeltaX > 40) {
-        overlay.style.background='rgba(52,168,83,0.35)';overlay.style.display='flex';overlay.textContent='â è®°å¾';
+        overlay.style.background='rgba(52,168,83,0.35)';overlay.style.display='flex';overlay.textContent='✓ 记得';
       } else if (touchDeltaX < -40) {
-        overlay.style.background='rgba(234,67,53,0.35)';overlay.style.display='flex';overlay.textContent='â ä¸ä¼';
+        overlay.style.background='rgba(234,67,53,0.35)';overlay.style.display='flex';overlay.textContent='✗ 不会';
       } else {
         overlay.style.display='none';
       }
@@ -1055,7 +1055,7 @@ function rate(grade) {
   qIdx++; renderCard();
 }
 
-// ââ WORDS ââââââââââââââââââââââââââââââââââââââââââââââ
+// ── WORDS ──────────────────────────────────────────────
 function renderWords() {
   const all=db.vocab, nw=all.filter(w=>status(w)==='new'),
     lr=all.filter(w=>status(w)==='learning'), ms=all.filter(w=>status(w)==='mastered'),
@@ -1075,24 +1075,24 @@ function filterWords(f, btn) {
   else document.querySelectorAll('.ftab')[[
     'all','new','learning','mastered','starred'].indexOf(f)]?.classList.add('active');
 
-  const topicZH={'Bisnis':'åå¡','Teknologi':'ç§æ','Kehidupan':'çæ´»','Makanan':'é¥®é£',
-    'Perjalanan':'æè¡','Kesehatan':'å¥åº·','Pendidikan':'æè²','Lainnya':'å¶ä»'};
+  const topicZH={'Bisnis':'商务','Teknologi':'科技','Kehidupan':'生活','Makanan':'饮食',
+    'Perjalanan':'旅行','Kesehatan':'健康','Pendidikan':'教育','Lainnya':'其他'};
   let words=db.vocab;
   if (f==='starred') words=words.filter(w=>w.starred);
   else if (f!=='all') words=words.filter(w=>status(w)===f);
 
   const g=document.getElementById('words-grid');
   if (!words.length) {
-    g.innerHTML=`<div class="empty"><div class="icon">${f==='starred'?'â­':'ð­'}</div>
-      <h3>${f==='starred'?'ææ æ¶è':'ææ è¯æ±'}</h3>
-      <p>${f==='starred'?'å­¦ä¹ æ¶ç¹å»âæ¶èåè¯':'å»å¯¼å¥é¡µé¢æåè¯æ±'}</p></div>`;
+    g.innerHTML=`<div class="empty"><div class="icon">${f==='starred'?'⭐':'📭'}</div>
+      <h3>${f==='starred'?'暂无收藏':'暂无词汇'}</h3>
+      <p>${f==='starred'?'学习时点击☆收藏单词':'去导入页面提取词汇'}</p></div>`;
     return;
   }
   g.innerHTML=`<div class="word-grid">${words.map(w=>`
     <div class="wc">
       <div class="wc-dot dot-${status(w)}"></div>
-      <button class="wc-star ${w.starred?'starred':''}" data-id="${w.id}" onclick="toggleStar(${w.id},event)">${w.starred?'â­':'â'}</button>
-      <div class="wc-emoji">${w.emoji||'ð'}</div>
+      <button class="wc-star ${w.starred?'starred':''}" data-id="${w.id}" onclick="toggleStar(${w.id},event)">${w.starred?'⭐':'☆'}</button>
+      <div class="wc-emoji">${w.emoji||'📖'}</div>
       <div class="wc-ido">${esc(w.indonesian)}</div>
       ${w.chinese?`<div class="wc-en" style="color:var(--text);font-weight:600">${esc(w.chinese)}</div>`:''}
       ${w.english?`<div class="wc-en">${esc(w.english)}</div>`:''}
@@ -1100,13 +1100,13 @@ function filterWords(f, btn) {
     </div>`).join('')}</div>`;
 }
 
-// ââ STATS ââââââââââââââââââââââââââââââââââââââââââââââ
+// ── STATS ──────────────────────────────────────────────
 function renderStats() {
   const v=db.vocab;
   const ms=v.filter(w=>status(w)==='mastered').length;
   const totalR=v.reduce((s,w)=>s+(w.totalReviews||0),0);
   const totalC=v.reduce((s,w)=>s+(w.correct||0),0);
-  const acc=totalR>0?Math.round((totalC/totalR)*100)+'%':'â';
+  const acc=totalR>0?Math.round((totalC/totalR)*100)+'%':'—';
   document.getElementById('s-total').textContent=v.length;
   document.getElementById('s-mastered').textContent=ms;
   document.getElementById('s-streak').textContent=db.meta.streak||0;
@@ -1114,8 +1114,8 @@ function renderStats() {
   document.getElementById('s-sessions').textContent=db.meta.totalSessions||0;
   document.getElementById('s-acc').textContent=acc;
 
-  const TOPIC_ZH={'Bisnis':'åå¡','Teknologi':'ç§æ','Kehidupan':'çæ´»','Makanan':'é¥®é£',
-    'Perjalanan':'æè¡','Kesehatan':'å¥åº·','Pendidikan':'æè²','Lainnya':'å¶ä»'};
+  const TOPIC_ZH={'Bisnis':'商务','Teknologi':'科技','Kehidupan':'生活','Makanan':'饮食',
+    'Perjalanan':'旅行','Kesehatan':'健康','Pendidikan':'教育','Lainnya':'其他'};
   const topics={};
   v.forEach(w=>{const t=w.topic||'Lainnya';topics[t]=(topics[t]||0)+1;});
   const max=Math.max(...Object.values(topics),1);
@@ -1130,7 +1130,7 @@ function renderStats() {
     </div>`).join('');
 }
 
-// ââ UTILS ââââââââââââââââââââââââââââââââââââââââââââââ
+// ── UTILS ──────────────────────────────────────────────
 function setStatus(view,msg,type) {
   const el=document.getElementById(view+'-status');
   if (!el) return;
@@ -1159,20 +1159,20 @@ function handleImportFile(input) {
     try {
       const data=JSON.parse(e.target.result);
       db={...db,...data}; save(); loadSettingsUI();
-      toast(`å¯¼å¥æåï¼å± ${db.vocab.length} ä¸ªè¯æ±`);
-    } catch { toast('æä»¶æ ¼å¼æè¯¯'); }
+      toast(`导入成功，共 ${db.vocab.length} 个词汇`);
+    } catch { toast('文件格式有误'); }
   };
   reader.readAsText(file);
   input.value='';
 }
 function clearAll() {
-  if (confirm('ç¡®è®¤æ¸ç©ºææå­¦ä¹ æ°æ®ï¼')) {
+  if (confirm('确认清空所有学习数据？')) {
     db={vocab:[],settings:db.settings,meta:{streak:0,lastStudyDate:null,totalSessions:0}};
-    save(); toast('å·²æ¸ç©º'); showView('import');
+    save(); toast('已清空'); showView('import');
   }
 }
 
-// ââ INIT âââââââââââââââââââââââââââââââââââââââââââââââ
+// ── INIT ───────────────────────────────────────────────
 load();
 applyDarkMode();
 loadSettingsUI();
