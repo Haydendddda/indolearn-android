@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IndoLearn v2 — 智能印尼语学习</title>
+<!-- GIS OAuth handled by Android bridge -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+/* ── TOKENS ─────────────────────────────────────────── */
+:root {
+  --red:#CC0001; --blue:#1a73e8; --green:#34a853; --yellow:#fbbc04; --orange:#fa7b17;
+  --bg:#f8f9fa; --surface:#ffffff; --surface2:#f1f3f4;
+  --border:#e8eaed; --text:#202124; --text2:#5f6368; --text3:#9aa0a6;
+  --shadow:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.08);
+  --shadow-lg:0 4px 16px rgba(0,0,0,.15);
+  --radius:12px; --radius-sm:8px;
+}
+[data-theme="dark"] {
+  --bg:#111318; --surface:#1e2128; --surface2:#292d36;
+  --border:#3c4049; --text:#e3e3e3; --text2:#9aa0a6; --text3:#5f6368;
+  --shadow:0 1px 3px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.3);
+  --shadow-lg:0 4px 16px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .25s,color .25s}
+
+/* NAV */
+nav{background:var(--red);color:#fff;padding:0 12px;display:flex;align-items:center;height:52px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.nav-brand{font-size:17px;font-weight:700;flex:1}
+.nav-tabs{display:flex;gap:2px;overflow-x:auto}
+.nav-tab{padding:7px 11px;border-radius:18px;cursor:pointer;font-size:12px;font-weight:500;color:rgba(255,255,255,.7);border:none;background:none;white-space:nowrap;transition:all .2s}
+.nav-tab:hover{color:#fff;background:rgba(255,255,255,.12)}
+.nav-tab.active{color:#fff;background:rgba(255,255,255,.22)}
+.dark-btn{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;padding:4px 8px;border-radius:8px;margin-left:6px;opacity:.8;transition:opacity .2s}
+.dark-btn:hover{opacity:1;background:rgba(255,255,255,.12)}
+
+/* LAYOUT */
+.container{max-width:780px;margin:0 auto;padding:16px 12px}
+.view{display:none}.view.active{display:block}
+
+/* CARD */
+.card{background:var(--surface);border-radius:var(--radius);padding:18px 20px;margin-bottom:14px;box-shadow:var(--shadow);transition:background .25s}
+.card-title{font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:7px;color:var(--text)}
+
+/* FORM */
+.field{margin-bottom:12px}
+label{display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:4px}
+.hint{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.4}
+input[type=text],input[type=password],textarea,select{
+  width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);
+  font-size:13px;outline:none;font-family:inherit;transition:border-color .2s,box-shadow .2s;
+  background:var(--surface);color:var(--text)}
+input:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,115,232,.1)}
+textarea{resize:vertical;min-height:110px;line-height:1.5}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;
+  transition:all .15s;display:inline-flex;align-items:center;gap:7px}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#1557b0}
+.btn-primary:active{transform:scale(.97)}.btn-primary:disabled{background:#90caf9;cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--blue);border:1px solid var(--border)}.btn-ghost:hover{background:var(--surface2)}
+.btn-block{width:100%;justify-content:center;margin-top:4px}
+.btn-drive{background:#34a853;color:#fff}.btn-drive:hover{background:#2d8e47}
+.btn-drive:disabled{background:#a8d5b4;cursor:not-allowed}
+
+/* STATUS */
+.status{padding:9px 13px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:10px;display:none}
+.status.info{background:#e8f0fe;color:#1a73e8;border:1px solid #c5d9fc}
+.status.error{background:#fce8e6;color:#c5221f;border:1px solid #f5c6c4}
+.status.success{background:#e6f4ea;color:#1e7e34;border:1px solid #b7dfbd}
+.status.show{display:block}
+[data-theme="dark"] .status.info{background:#0d2d6e;color:#8ab4f8;border-color:#1a4db3}
+[data-theme="dark"] .status.error{background:#5c1a1a;color:#f28b82;border-color:#8b2a2a}
+[data-theme="dark"] .status.success{background:#0d3c20;color:#81c995;border-color:#1a6e3b}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* IMPORT TABS */
+.itabs{display:flex;gap:0;margin-bottom:14px;background:var(--surface2);border-radius:10px;padding:3px}
+.itab{flex:1;padding:8px 4px;border-radius:8px;border:none;background:none;cursor:pointer;font-size:11px;font-weight:500;color:var(--text2);transition:all .2s;text-align:center}
+.itab.active{background:var(--surface);color:var(--blue);box-shadow:var(--shadow);font-weight:600}
+.ipanel{display:none}.ipanel.active{display:block}
+
+/* GMAIL BOX */
+.gmail-box{background:#fff8e1;border:1px solid #ffe082;border-radius:10px;padding:14px;margin-bottom:14px}
+[data-theme="dark"] .gmail-box{background:#2d2600;border-color:#5c4a00}
+
+/* FLASHCARD */
+.study-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:12px;color:var(--text2)}
+.progress-wrap{height:4px;background:var(--border);border-radius:2px;flex:1;margin:0 12px}
+.progress-fill{height:100%;background:var(--blue);border-radius:2px;transition:width .3s}
+
+.fc-scene{perspective:1200px;height:360px;cursor:pointer;margin-bottom:12px;user-select:none;position:relative}
+.fc-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.fc-scene.flipped .fc-inner{transform:rotateY(180deg)}
+.fc-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:16px;
+  box-shadow:0 6px 24px rgba(0,0,0,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+.fc-front{background:linear-gradient(140deg,#1a73e8 0%,#0d47a1 100%);color:#fff}
+.fc-back{background:var(--surface);transform:rotateY(180deg);justify-content:flex-start;overflow-y:auto}
+.fc-emoji{font-size:68px;margin-bottom:14px;line-height:1}
+.fc-word{font-size:30px;font-weight:700;text-align:center;margin-bottom:6px}
+.fc-lang{font-size:12px;opacity:.65}
+.fc-badge{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.18);border-radius:16px;padding:3px 10px;font-size:11px}
+.fc-hint{font-size:11px;color:rgba(255,255,255,.45);margin-top:14px}
+.fc-ido{font-size:26px;font-weight:700;color:var(--red);margin-bottom:3px;text-align:center;width:100%}
+.fc-pron{font-size:13px;color:var(--text3);font-style:italic;margin-bottom:10px;text-align:center}
+.fc-audio{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--red);color:#fff;
+  border:none;border-radius:18px;padding:7px 16px;font-size:13px;cursor:pointer;margin-bottom:10px;width:100%}
+.fc-audio:hover{filter:brightness(.9)}
+.fc-sec{width:100%;margin-bottom:10px}
+.fc-sec-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:3px}
+.fc-sec-txt{font-size:13px;color:var(--text);line-height:1.5}
+.fc-img{width:70px;height:70px;border-radius:8px;object-fit:cover;float:right;margin-left:10px;margin-bottom:4px}
+
+/* STAR BUTTON ON CARD */
+.fc-star{position:absolute;top:14px;left:14px;background:rgba(255,255,255,.18);border:none;border-radius:50%;
+  width:32px;height:32px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:transform .15s,background .15s;z-index:10}
+.fc-star:hover{transform:scale(1.2);background:rgba(255,255,255,.3)}
+.fc-star.starred{color:#fbbc04}
+
+/* SWIPE OVERLAY */
+.swipe-overlay{position:absolute;inset:0;border-radius:16px;display:none;align-items:center;justify-content:center;
+  font-size:32px;font-weight:700;color:#fff;letter-spacing:1px;z-index:5;pointer-events:none;transition:background .1s}
+
+/* SWIPE HINT */
+.swipe-hint{text-align:center;font-size:11px;color:var(--text3);margin-top:2px;margin-bottom:6px}
+
+/* RATING */
+.rating-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:6px}
+.rb{padding:10px 0;border-radius:10px;border:none;cursor:pointer;font-size:11px;font-weight:600;
+  transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:2px}
+.rb span{font-size:16px}
+.rb-again{background:#ffebee;color:#c62828}.rb-hard{background:#fff3e0;color:#e65100}
+.rb-good{background:#e8f5e9;color:#2e7d32}.rb-easy{background:#e3f2fd;color:#1565c0}
+.rb:hover{transform:translateY(-2px);box-shadow:var(--shadow)}.rb:active{transform:translateY(0)}
+[data-theme="dark"] .rb-again{background:#3b1212;color:#f28b82}
+[data-theme="dark"] .rb-hard{background:#3b2400;color:#ffb74d}
+[data-theme="dark"] .rb-good{background:#0d3c20;color:#81c995}
+[data-theme="dark"] .rb-easy{background:#0d2d6e;color:#8ab4f8}
+
+/* RELATED WORDS (词根联想) */
+.root-tag{display:inline-block;background:var(--surface2);border:1px solid var(--border);padding:3px 10px;
+  border-radius:12px;font-size:12px;color:var(--text2);margin:2px}
+
+/* WORD GRID */
+.word-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.wc{background:var(--surface);border-radius:10px;padding:12px;box-shadow:var(--shadow);position:relative;
+  transition:box-shadow .2s,transform .1s;cursor:default}
+.wc:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}
+.wc-emoji{font-size:28px;margin-bottom:6px}
+.wc-ido{font-size:15px;font-weight:700;color:var(--text)}
+.wc-en{font-size:11px;color:var(--text2);margin-top:1px}
+.wc-dot{position:absolute;top:9px;right:28px;width:7px;height:7px;border-radius:50%}
+.dot-new{background:var(--blue)}.dot-learning{background:var(--yellow)}.dot-mastered{background:var(--green)}
+.wc-star{position:absolute;top:7px;right:7px;background:none;border:none;font-size:14px;cursor:pointer;
+  color:var(--text3);transition:color .15s,transform .15s;padding:1px}
+.wc-star:hover{transform:scale(1.2)}
+.wc-star.starred{color:#fbbc04}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat-box{background:var(--surface);border-radius:10px;padding:14px;text-align:center;box-shadow:var(--shadow)}
+.stat-num{font-size:26px;font-weight:700;color:var(--blue)}
+.stat-lbl{font-size:11px;color:var(--text2);margin-top:1px}
+
+/* FILTER TABS */
+.ftabs{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+.ftab{padding:5px 14px;border-radius:18px;font-size:12px;font-weight:500;cursor:pointer;
+  border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:all .15s}
+.ftab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.ftab.ftab-star.active{background:var(--yellow);border-color:var(--yellow);color:#333}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 16px;color:var(--text3)}
+.empty .icon{font-size:44px;margin-bottom:10px}
+.empty h3{font-size:15px;color:var(--text2);margin-bottom:6px}
+.empty p{font-size:12px}
+
+/* PDF UPLOAD ZONE */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:32px 16px;text-align:center;
+  cursor:pointer;transition:all .2s;color:var(--text2)}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--blue);background:#e8f0fe;color:var(--blue)}
+.upload-zone input{display:none}
+
+/* DRIVE SECTION */
+.drive-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--surface);
+  padding:9px 18px;border-radius:22px;font-size:13px;opacity:0;transition:opacity .2s;z-index:9999;
+  pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1}
+
+@media(max-width:480px){
+  .rating-btns{grid-template-columns:repeat(2,1fr)}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .itab{font-size:10px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">🇮🇩 IndoLearn</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showView('import')">导入</button>
+    <button class="nav-tab" onclick="showView('study')">学习</button>
+    <button class="nav-tab" onclick="showView('words')">词库</button>
+    <button class="nav-tab" onclick="showView('stats')">统计</button>
+    <button class="nav-tab" onclick="showView('setup')">设置</button>
+  </div>
+  <button class="dark-btn" onclick="toggleDark()" title="切换深色模式" id="dark-btn">🌙</button>
+</nav>
+
+<main>
+
+<!-- IMPORT -->
+<div class="view active" id="v-import">
+<div class="container">
+
+  <!-- Gmail box -->
+  <div class="gmail-box">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <span style="font-size:16px">✉️</span>
+      <strong style="font-size:13px">从 Gmail 自动导入</strong>
+      <span id="gmail-badge" style="font-size:11px;color:var(--green);font-weight:600"></span>
+    </div>
+    <div id="gm-off">
+      <p style="font-size:12px;color:#888;margin-bottom:9px">连接后自动获取最近 50 封主要邮件（过滤广告/订阅），提取印尼语词汇。</p>
+      <button class="btn btn-ghost" style="font-size:12px" onclick="connectGmail()">🔗 连接 Gmail</button>
+    </div>
+    <div id="gm-on" style="display:none">
+      <div id="gmail-progress" style="font-size:12px;color:#666;margin-bottom:8px"></div>
+      <button class="btn btn-ghost" style="font-size:12px;margin-right:6px" onclick="autoImportAllEmails()">🔄 重新导入</button>
+      <button class="btn btn-ghost" style="font-size:12px;color:#c62828" onclick="disconnectGmail()">断开</button>
+    </div>
+  </div>
+
+  <!-- Import tabs -->
+  <div class="card">
+    <div class="itabs">
+      <button class="itab active" onclick="switchImportTab('text',this)">📝 粘贴文本</button>
+      <button class="itab" onclick="switchImportTab('pdf',this)">📄 PDF 文件</button>
+      <button class="itab" onclick="switchImportTab('chat',this)">💬 聊天记录</button>
+    </div>
+
+    <!-- TEXT -->
+    <div class="ipanel active" id="ip-text">
+      <div class="field">
+        <label>任意文本 — AI 自动提取印尼语词汇并给出中文解释</label>
+        <textarea id="input-text" rows="7" placeholder="粘贴邮件、文章、会议记录...&#10;&#10;支持中文、英文等任意语言"></textarea>
+      </div>
+    </div>
+
+    <!-- PDF -->
+    <div class="ipanel" id="ip-pdf">
+      <div class="upload-zone" id="pdf-zone" onclick="document.getElementById('pdf-input').click()"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handlePdfDrop(event)">
+        <input type="file" id="pdf-input" accept=".pdf" onchange="handlePdfFile(this.files[0])">
+        <div style="font-size:40px;margin-bottom:8px">📄</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px">点击或拖拽 PDF 文件</div>
+        <div style="font-size:12px;color:var(--text3)">自动提取文字后送入 AI 分析</div>
+      </div>
+      <div id="pdf-progress" style="font-size:12px;color:var(--text2);margin-top:8px;display:none"></div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="ipanel" id="ip-chat">
+      <div class="field">
+        <label>微信 / 飞书 / Teams 聊天记录 — 直接粘贴原始文本</label>
+        <textarea id="input-chat" rows="7" placeholder="粘贴聊天记录...&#10;&#10;支持中文、英文混合内容，AI 会提取其中有价值的印尼语词汇"></textarea>
+      </div>
+    </div>
+
+    <div class="status" id="import-status"></div>
+    <button class="btn btn-primary btn-block" id="extract-btn" onclick="extractVocab()">✨ 提取词汇</button>
+  </div>
+</div>
+</div>
+
+<!-- STUDY -->
+<div class="view" id="v-study">
+<div class="container">
+  <div id="study-content"></div>
+</div>
+</div>
+
+<!-- WORDS -->
+<div class="view" id="v-words">
+<div class="container">
+  <div class="ftabs">
+    <button class="ftab active" onclick="filterWords('all',this)">全部 <span id="cnt-all"></span></button>
+    <button class="ftab" onclick="filterWords('new',this)">未学 <span id="cnt-new"></span></button>
+    <button class="ftab" onclick="filterWords('learning',this)">学习中 <span id="cnt-learning"></span></button>
+    <button class="ftab" onclick="filterWords('mastered',this)">已掌握 <span id="cnt-mastered"></span></button>
+    <button class="ftab ftab-star" onclick="filterWords('starred',this)">⭐ 收藏 <span id="cnt-star"></span></button>
+  </div>
+  <div id="words-grid"></div>
+</div>
+</div>
+
+<!-- STATS -->
+<div class="view" id="v-stats">
+<div class="container">
+  <div class="stats-grid">
+    <div class="stat-box"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">总词汇</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-mastered">0</div><div class="stat-lbl">已掌握</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-streak">0</div><div class="stat-lbl">连续天数</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-due">0</div><div class="stat-lbl">今日待复习</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-sessions">0</div><div class="stat-lbl">学习次数</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-acc">—</div><div class="stat-lbl">正确率</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📊 主题分布</div>
+    <div id="chart"></div>
+  </div>
+</div>
+</div>
+
+<!-- SETUP -->
+<div class="view" id="v-setup">
+<div class="container">
+  <div class="card">
+    <div class="card-title">🔑 API 配置</div>
+    <div class="field">
+      <label>Gemini API Key（必填）</label>
+      <input type="password" id="cfg-gemini" placeholder="AIza...">
+      <div class="hint">在 <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> 获取 · 使用 gemini-2.5-flash-lite 模型</div>
+    </div>
+    <div class="field">
+      <label>Google OAuth Client ID（Gmail 连接 + 云端同步用）</label>
+      <input type="text" id="cfg-gid" placeholder="xxx.apps.googleusercontent.com">
+      <div class="hint">Google Cloud Console → 凭据 → OAuth 2.0 客户端 ID</div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="saveSettings()">💾 保存设置</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">☁️ 云端同步（Google Drive）</div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:10px">数据存储在你的 Google Drive 私有应用文件夹中，只有本应用可以访问。</p>
+    <div class="drive-row">
+      <button class="btn btn-drive" id="drive-save-btn" onclick="driveSync('save')" disabled>⬆️ 备份到云端</button>
+      <button class="btn btn-drive" id="drive-load-btn" onclick="driveSync('load')" disabled>⬇️ 从云端恢复</button>
+      <button class="btn btn-ghost" onclick="connectDrive()">🔗 连接 Drive</button>
+    </div>
+    <div id="drive-status" style="font-size:12px;color:var(--text2);margin-top:8px"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📦 本地数据</div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:12px">建议定期导出备份，清除浏览器缓存会丢失本地数据。</p>
+    <button class="btn btn-ghost" style="margin-right:8px" onclick="exportData()">📤 导出备份</button>
+    <button class="btn btn-ghost" style="margin-right:8px" onclick="importData()">📥 导入备份</button>
+    <button class="btn btn-ghost" style="color:#c62828" onclick="clearAll()">🗑️ 清空数据</button>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImportFile(this)">
+  </div>
+</div>
+</div>
+
+</main>
+<div id="toast"></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ── STATE ──────────────────────────────────────────────
+const KEY = 'indolearn3';
+let db = { vocab: [], settings: {}, meta: { streak:0, lastStudyDate:null, totalSessions:0 } };
+let queue = [], qIdx = 0, flipped = false, curFilter = 'all';
+let gmailToken = null, driveToken = null;
+let activeImportTab = 'text';
+// Swipe state
+let touchStartX = 0, touchDeltaX = 0, touchActive = false;
+
+// ── STORAGE ────────────────────────────────────────────
+function load() {
+  try { const r = localStorage.getItem(KEY); if (r) db = {...db, ...JSON.parse(r)}; } catch(e) {}
+}
+function save() { localStorage.setItem(KEY, JSON.stringify(db)); }
+
+// ── DARK MODE ──────────────────────────────────────────
+function toggleDark() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('dark-btn').textContent = isDark ? '🌙' : '☀️';
+  db.settings.darkMode = !isDark; save();
+}
+function applyDarkMode() {
+  if (db.settings.darkMode) {
+    document.documentElement.setAttribute('data-theme','dark');
+    document.getElementById('dark-btn').textContent = '☀️';
+  }
+}
+
+// ── SETTINGS ───────────────────────────────────────────
+function saveSettings() {
+  db.settings.geminiKey = document.getElementById('cfg-gemini').value.trim();
+  db.settings.googleClientId = document.getElementById('cfg-gid').value.trim();
+  save(); toast('设置已保存 ✓');
+}
+function loadSettingsUI() {
+  document.getElementById('cfg-gemini').value = db.settings.geminiKey || '';
+  document.getElementById('cfg-gid').value = db.settings.googleClientId || '';
+}
+
+// ── NAV ────────────────────────────────────────────────
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('v-' + name).classList.add('active');
+  const names = ['import','study','words','stats','setup'];
+  document.querySelectorAll('.nav-tab')[names.indexOf(name)]?.classList.add('active');
+  if (name === 'study') renderStudy();
+  if (name === 'words') renderWords();
+  if (name === 'stats') renderStats();
+}
+
+// ── IMPORT TABS ────────────────────────────────────────
+function switchImportTab(tab, btn) {
+  activeImportTab = tab;
+  document.querySelectorAll('.itab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ipanel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('ip-' + tab).classList.add('active');
+}
+
+// ── SM-2 ───────────────────────────────────────────────
+function sm2(card, grade) {
+  let {ef=2.5, interval=0, reps=0} = card;
+  const q = [0,3,4,5][grade];
+  if (q < 3) { interval=1; reps=0; }
+  else {
+    interval = reps===0?1:reps===1?6:Math.round(interval*ef);
+    ef = Math.max(1.3, ef + 0.1 - (5-q)*(0.08+(5-q)*0.02));
+    reps++;
+  }
+  const delay = grade===0 ? 600000 : interval*86400000;
+  return {...card, ef, interval, reps, nextReview:Date.now()+delay, lastReview:Date.now(),
+    totalReviews:(card.totalReviews||0)+1, correct:(card.correct||0)+(grade>=2?1:0)};
+}
+function status(w) {
+  if (!w.reps || w.reps===0) return 'new';
+  if ((w.interval||0) >= 21) return 'mastered';
+  return 'learning';
+}
+function due() { return db.vocab.filter(w => !w.nextReview || w.nextReview <= Date.now()); }
+
+// ── STAR / FAVORITES ───────────────────────────────────
+function toggleStar(id, event) {
+  if (event) event.stopPropagation();
+  const i = db.vocab.findIndex(v=>v.id===id);
+  if (i<0) return;
+  db.vocab[i].starred = !db.vocab[i].starred;
+  save();
+  // Update star button in flashcard if present
+  const btn = document.querySelector('.fc-star');
+  if (btn) {
+    btn.textContent = db.vocab[i].starred ? '⭐' : '☆';
+    btn.classList.toggle('starred', db.vocab[i].starred);
+  }
+  // Update star in word grid if present
+  const wbtn = document.querySelector(`.wc-star[data-id="${id}"]`);
+  if (wbtn) {
+    wbtn.textContent = db.vocab[i].starred ? '⭐' : '☆';
+    wbtn.classList.toggle('starred', db.vocab[i].starred);
+  }
+  toast(db.vocab[i].starred ? '已加入收藏 ⭐' : '已取消收藏');
+}
+
+// ── TTS ────────────────────────────────────────────────
+function speak(text) {
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'id-ID'; u.rate = 0.8;
+  window.speechSynthesis.speak(u);
+}
+
+// ── WIKI IMAGE ─────────────────────────────────────────
+async function wikiImg(word) {
+  try {
+    const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(word)}`);
+    if (!r.ok) return null;
+    return (await r.json()).thumbnail?.source || null;
+  } catch { return null; }
+}
+
+// ── GEMINI ─────────────────────────────────────────────
+const GURL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
+async function gemini(prompt) {
+  const key = db.settings.geminiKey;
+  if (!key) throw new Error('请先在设置中填写 Gemini API Key');
+  const r = await fetch(`${GURL}?key=${key}`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:{temperature:0.4}})
+  });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d?.error?.message || `HTTP ${r.status}`);
+  return d?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+// ── EXTRACT VOCAB ──────────────────────────────────────
+function getInputText() {
+  if (activeImportTab === 'chat') return document.getElementById('input-chat').value.trim();
+  return document.getElementById('input-text').value.trim();
+}
+
+async function extractVocab(fromGmail=false) {
+  const text = fromGmail ? document.getElementById('input-text').value.trim() : getInputText();
+  if (!text) { setStatus('import','请先输入文本','error'); return; }
+  if (!db.settings.geminiKey) { setStatus('import','请先在设置中填写 Gemini API Key','error'); showView('setup'); return; }
+
+  const btn = document.getElementById('extract-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> 正在分析...';
+  setStatus('import','⏳ AI 正在提取词汇...','info');
+
+  try {
+    const prompt = `你是帮助中文母语者学习印尼语的词汇提取助手。分析以下文本，提取 8-15 个有价值的词汇。
+
+输出要求（每个字段都必须满足）：
+1. "chinese"：★必须是中文汉字★，2-6字，例如「时长」「持续时间」「仓库」「会议」。绝对不允许出现英文字母。
+2. "english"：英文释义，用于图片搜索，例如 "duration"、"repository"。
+3. "mnemonic"：★必须全部用中文★写记忆技巧。可以提及印尼语发音与英文/中文的相似性。不允许出现英文句子。
+4. "pronunciation"：用连字符分音节，大写重读音节，例如：du-RA-si、be-LA-jar。
+5. "sourceLang"：原文语言，填 Chinese、English 或 Indonesian。
+6. "related"：2-4 个同词根的印尼语变化形式，例如 ["bekerja","pekerjaan","pekerja"]。若无明显词根变化则填 []。
+
+只返回合法 JSON 数组，不要 markdown 代码块：
+[{
+  "sourceWord": "原文中的词",
+  "sourceLang": "Chinese/English/Indonesian",
+  "indonesian": "印尼语单词",
+  "pronunciation": "音节发音（必填）",
+  "chinese": "中文释义（必须是汉字）",
+  "english": "English meaning",
+  "emoji": "单个emoji",
+  "mnemonic": "中文记忆技巧",
+  "related": ["词根变体1","词根变体2"],
+  "topic": "Bisnis/Teknologi/Kehidupan/Makanan/Perjalanan/Kesehatan/Pendidikan/Lainnya"
+}]
+
+原文：
+${text.substring(0,3000)}`;
+
+    const resp = await gemini(prompt);
+    const s = resp.indexOf('['), e = resp.lastIndexOf(']');
+    if (s===-1) throw new Error('AI 返回格式有误，请重试');
+    const words = JSON.parse(resp.substring(s, e+1));
+
+    let added = 0;
+    for (const w of words) {
+      const exists = db.vocab.some(v => v.indonesian?.toLowerCase() === w.indonesian?.toLowerCase());
+      if (!exists) {
+        db.vocab.push({id: Date.now()+Math.random(), starred:false, ...w,
+          ef:2.5, interval:0, reps:0, nextReview:null, lastReview:null,
+          totalReviews:0, correct:0, addedAt:Date.now()});
+        added++;
+      }
+    }
+    save();
+    fetchImagesBackground(db.vocab.filter(v => !v.imageUrl));
+    setStatus('import', `✅ 提取 ${words.length} 个词汇，新增 ${added} 个。点"学习"开始背单词！`, 'success');
+    if (!fromGmail) {
+      document.getElementById('input-text').value = '';
+      document.getElementById('input-chat').value = '';
+    }
+  } catch(e) {
+    setStatus('import', `❌ ${e.message}`, 'error');
+  } finally {
+    btn.disabled = false; btn.innerHTML = '✨ 提取词汇';
+  }
+}
+
+async function fetchImagesBackground(words) {
+  for (const w of words) {
+    const img = await wikiImg(w.english || w.sourceWord || w.indonesian);
+    if (img) {
+      const i = db.vocab.findIndex(v => v.id === w.id);
+      if (i >= 0) { db.vocab[i].imageUrl = img; save(); }
+    }
+    await new Promise(r => setTimeout(r, 300));
+  }
+}
+
+// ── PDF IMPORT ─────────────────────────────────────────
+function handlePdfDrop(event) {
+  event.preventDefault();
+  document.getElementById('pdf-zone').classList.remove('drag-over');
+  const file = event.dataTransfer.files[0];
+  if (file?.type === 'application/pdf') handlePdfFile(file);
+}
+
+async function handlePdfFile(file) {
+  if (!file) return;
+  const prog = document.getElementById('pdf-progress');
+  prog.style.display = 'block';
+  prog.textContent = `📄 正在解析 ${file.name}...`;
+  try {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data: buf}).promise;
+    let text = '';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(item => item.str).join(' ') + '\n';
+      prog.textContent = `📄 解析中... ${i}/${pdf.numPages} 页`;
+    }
+    prog.textContent = `✅ 解析完成，共 ${pdf.numPages} 页，${text.length} 字符`;
+    // Switch to text tab and fill
+    document.getElementById('input-text').value = text.substring(0, 4000);
+    switchImportTab('text', document.querySelectorAll('.itab')[0]);
+    toast('PDF 解析完成，点击「提取词汇」开始分析');
+  } catch(e) {
+    prog.textContent = `❌ 解析失败: ${e.message}`;
+  }
+}
+
+// ── GMAIL ──────────────────────────────────────────────
+function connectGmail() {
+  if (!db.settings.googleClientId) { toast('请先在设置中填写 Google OAuth Client ID'); showView('setup'); return; }
+  if (!window.google?.accounts?.oauth2) { toast('Google 库尚未加载，请稍候'); return; }
+  const client = window.google.accounts.oauth2.initTokenClient({
+    client_id: db.settings.googleClientId,
+    scope: 'https://www.googleapis.com/auth/gmail.readonly',
+    callback: r => {
+      if (r.error) { toast('连接失败: '+r.error); return; }
+      gmailToken = r.access_token;
+      document.getElementById('gm-off').style.display = 'none';
+      document.getElementById('gm-on').style.display = 'block';
+      document.getElementById('gmail-badge').textContent = '✓ 已连接';
+      toast('Gmail 连接成功，开始自动导入邮件...');
+      autoImportAllEmails();
+    }
+  });
+  client.requestAccessToken();
+}
+
+function disconnectGmail() {
+  gmailToken = null;
+  document.getElementById('gm-off').style.display = 'block';
+  document.getElementById('gm-on').style.display = 'none';
+  document.getElementById('gmail-badge').textContent = '';
+  document.getElementById('gmail-progress').textContent = '';
+}
+function setGmailProgress(msg) { document.getElementById('gmail-progress').textContent = msg; }
+
+function b64utf8(b64) {
+  try {
+    const bin = atob(b64.replace(/-/g,'+').replace(/_/g,'/'));
+    const bytes = new Uint8Array(bin.length);
+    for (let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(bytes);
+  } catch { return ''; }
+}
+
+function extractEmailBody(payload) {
+  let body = '';
+  function walk(p) {
+    if (!p) return;
+    if (p.mimeType === 'text/plain' && p.body?.data) body += b64utf8(p.body.data);
+    else if (p.parts) p.parts.forEach(walk);
+  }
+  walk(payload);
+  if (!body && payload?.body?.data) body = b64utf8(payload.body.data);
+  return body.replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim();
+}
+
+async function fetchEmailFull(id) {
+  const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}?format=full`,
+    {headers:{Authorization:`Bearer ${gmailToken}`}});
+  if (!r.ok) return null;
+  return r.json();
+}
+
+async function autoImportAllEmails() {
+  if (!gmailToken) return;
+  setGmailProgress('正在获取邮件列表...');
+  try {
+    const SPAM_SENDERS = /noreply|no-reply|donotreply|newsletter|notifications?@|support@|mailer@|bounce@|unsubscribe/i;
+    let allIds = [], pageToken = null;
+    while (allIds.length < 50) {
+      const q = encodeURIComponent('(category:primary OR in:sent) -label:spam');
+      const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=50&q=${q}` + (pageToken?`&pageToken=${pageToken}`:'');
+      const r = await fetch(url, {headers:{Authorization:`Bearer ${gmailToken}`}});
+      if (!r.ok) { const eb=await r.json().catch(()=>({})); throw new Error(`获取失败 (${r.status}): ${eb?.error?.message||''}`); }
+      const d = await r.json();
+      if (d.messages?.length) allIds.push(...d.messages.map(m=>m.id));
+      if (!d.nextPageToken || allIds.length >= 50) break;
+      pageToken = d.nextPageToken;
+    }
+    allIds = allIds.slice(0,50);
+    if (!allIds.length) { setGmailProgress('邮箱中没有找到邮件'); return; }
+    setGmailProgress(`找到 ${allIds.length} 封邮件，正在读取...`);
+    let combinedText='', fetched=0, skipped=0;
+    for (let i=0; i<allIds.length; i+=10) {
+      const batch = allIds.slice(i,i+10);
+      const msgs = await Promise.all(batch.map(id=>fetchEmailFull(id)));
+      for (const msg of msgs) {
+        if (!msg) continue;
+        const subj = msg.payload?.headers?.find(h=>h.name==='Subject')?.value||'';
+        const from = msg.payload?.headers?.find(h=>h.name==='From')?.value||'';
+        const body = extractEmailBody(msg.payload);
+        if (SPAM_SENDERS.test(from)||body.length<80) { skipped++; continue; }
+        combinedText += (subj?`【${subj}】`:'')+body+'\n\n';
+        fetched++;
+      }
+      setGmailProgress(`已读取 ${fetched+skipped}/${allIds.length} 封（过滤 ${skipped} 封广告）...`);
+    }
+    if (combinedText.length<50) { setGmailProgress('有效邮件内容不足，无法提取词汇'); return; }
+    setGmailProgress(`有效邮件 ${fetched} 封，正在提取词汇...`);
+    document.getElementById('input-text').value = combinedText.substring(0,4000);
+    await extractVocab(true);
+    setGmailProgress(`✅ 导入完成（有效 ${fetched} 封，过滤 ${skipped} 封）`);
+  } catch(e) { setGmailProgress(`❌ ${e.message}`); }
+}
+
+// Silent Gmail reconnect
+function trySilentGmailConnect() {
+  // Android uses native OAuth — no silent reconnect needed
+  if (window.AndroidBridge) return;
+  if (!db.settings.googleClientId) return;
+  if (!window.google?.accounts?.oauth2) { setTimeout(trySilentGmailConnect, 1500); return; }
+  window.google.accounts.oauth2.initTokenClient({
+    client_id: db.settings.googleClientId,
+    scope: 'https://www.googleapis.com/auth/gmail.readonly',
+    prompt: '',
+    callback: r => {
+      if (r.error || !r.access_token) return;
+      onGmailTokenReceived(r.access_token);
+      setGmailProgress('已自动重连，如需刷新词汇点击「重新导入」');
+    }
+  }).requestAccessToken();
+}
+
+// ── GOOGLE DRIVE SYNC ──────────────────────────────────
+const DRIVE_FILE = 'indolearn_backup.json';
+
+function connectDrive() {
+  if (!db.settings.googleClientId) { toast('请先填写 OAuth Client ID'); showView('setup'); return; }
+  if (window.AndroidBridge) {
+    window.AndroidBridge.startDriveOAuth(db.settings.googleClientId);
+    return;
+  }
+  if (!window.google?.accounts?.oauth2) { toast('Google 库尚未加载'); return; }
+  window.google.accounts.oauth2.initTokenClient({
+    client_id: db.settings.googleClientId,
+    scope: 'https://www.googleapis.com/auth/drive.appdata',
+    callback: r => {
+      if (r.error) { toast('Drive 连接失败: '+r.error); return; }
+      onDriveTokenReceived(r.access_token);
+    }
+  }).requestAccessToken();
+}
+
+function onDriveTokenReceived(token) {
+  if (!token) { toast('Drive 授权失败'); return; }
+  driveToken = token;
+  document.getElementById('drive-save-btn').disabled = false;
+  document.getElementById('drive-load-btn').disabled = false;
+  document.getElementById('drive-status').textContent = '✓ Drive 已连接';
+  toast('Google Drive 连接成功');
+}
+
+async function driveSync(action) {
+  if (!driveToken) { toast('请先连接 Google Drive'); return; }
+  const statusEl = document.getElementById('drive-status');
+
+  if (action === 'save') {
+    statusEl.textContent = '⬆️ 正在备份...';
+    try {
+      // Find existing file
+      const list = await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name="'+DRIVE_FILE+'"',
+        {headers:{Authorization:`Bearer ${driveToken}`}}).then(r=>r.json());
+      const fileId = list.files?.[0]?.id;
+      const data = JSON.stringify(db, null, 2);
+      const meta = JSON.stringify({name: DRIVE_FILE, parents: fileId ? undefined : ['appDataFolder']});
+      const form = new FormData();
+      form.append('metadata', new Blob([meta], {type:'application/json'}));
+      form.append('file', new Blob([data], {type:'application/json'}));
+      const url = fileId
+        ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
+        : 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+      const method = fileId ? 'PATCH' : 'POST';
+      const res = await fetch(url, {method, headers:{Authorization:`Bearer ${driveToken}`}, body:form});
+      if (!res.ok) throw new Error((await res.json())?.error?.message);
+      statusEl.textContent = `✅ 备份成功 · ${new Date().toLocaleString()}`;
+      toast('已备份到 Google Drive ☁️');
+    } catch(e) { statusEl.textContent = `❌ 备份失败: ${e.message}`; }
+
+  } else if (action === 'load') {
+    if (!confirm('从 Drive 恢复会覆盖当前本地数据，确认继续？')) return;
+    statusEl.textContent = '⬇️ 正在恢复...';
+    try {
+      const list = await fetch('https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name="'+DRIVE_FILE+'"',
+        {headers:{Authorization:`Bearer ${driveToken}`}}).then(r=>r.json());
+      const fileId = list.files?.[0]?.id;
+      if (!fileId) { statusEl.textContent = '云端暂无备份'; return; }
+      const content = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+        {headers:{Authorization:`Bearer ${driveToken}`}}).then(r=>r.json());
+      db = {...db, ...content};
+      save(); loadSettingsUI();
+      statusEl.textContent = `✅ 恢复成功 · ${db.vocab.length} 个词汇`;
+      toast('数据已从 Drive 恢复 ✓');
+    } catch(e) { statusEl.textContent = `❌ 恢复失败: ${e.message}`; }
+  }
+}
+
+// ── STUDY ──────────────────────────────────────────────
+function renderStudy() {
+  const c = document.getElementById('study-content');
+  if (!db.vocab.length) {
+    c.innerHTML = `<div class="empty"><div class="icon">📚</div><h3>词库为空</h3><p>先去"导入"页面提取词汇</p>
+      <button class="btn btn-primary" style="margin-top:14px" onclick="showView('import')">去导入</button></div>`;
+    return;
+  }
+  const d = due();
+  if (!d.length) {
+    const nxt = db.vocab.filter(w=>w.nextReview).sort((a,b)=>a.nextReview-b.nextReview)[0];
+    const mins = nxt ? Math.ceil((nxt.nextReview-Date.now())/60000) : 0;
+    c.innerHTML = `<div class="empty"><div class="icon">🎉</div><h3>今日学习完成！</h3>
+      <p>${mins>0?`${mins} 分钟后有新复习`:'明天继续'}</p>
+      <button class="btn btn-primary" style="margin-top:14px" onclick="startAll()">复习全部</button></div>`;
+    return;
+  }
+  queue = [...d].sort((a,b)=>(a.nextReview||0)-(b.nextReview||0));
+  qIdx = 0; renderCard();
+}
+
+function startAll() { queue=[...db.vocab].sort(()=>Math.random()-.5); qIdx=0; renderCard(); }
+
+function renderCard() {
+  const c = document.getElementById('study-content');
+  if (qIdx >= queue.length) {
+    db.meta.totalSessions=(db.meta.totalSessions||0)+1;
+    db.meta.lastStudyDate=new Date().toDateString(); save();
+    c.innerHTML=`<div class="empty"><div class="icon">✨</div><h3>本轮完成！</h3>
+      <p>复习了 ${queue.length} 个单词</p>
+      <button class="btn btn-primary" style="margin-top:14px" onclick="renderStudy()">查看进度</button></div>`;
+    return;
+  }
+  const w = queue[qIdx];
+  const pct = Math.round((qIdx/queue.length)*100);
+  flipped = false;
+
+  const topicZH = {'Bisnis':'商务','Teknologi':'科技','Kehidupan':'生活','Makanan':'饮食',
+    'Perjalanan':'旅行','Kesehatan':'健康','Pendidikan':'教育','Lainnya':'其他'};
+  const relatedHtml = w.related?.length
+    ? `<div class="fc-sec"><div class="fc-sec-lbl">🌿 词根联想</div>
+        <div>${w.related.map(r=>`<span class="root-tag">${esc(r)}</span>`).join('')}</div></div>`
+    : '';
+
+  c.innerHTML = `
+    <div class="study-info">
+      <span style="font-weight:600">${qIdx+1}/${queue.length}</span>
+      <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <span>${queue.length-qIdx-1} 剩余</span>
+    </div>
+
+    <div class="fc-scene" id="fcs" onclick="handleCardClick()">
+      <div class="swipe-overlay" id="swipe-overlay"></div>
+      <div class="fc-inner" id="fci">
+        <div class="fc-face fc-front">
+          <button class="fc-star ${w.starred?'starred':''}" onclick="toggleStar(${w.id},event)">${w.starred?'⭐':'☆'}</button>
+          <span class="fc-badge">${esc(topicZH[w.topic]||w.topic||'')}</span>
+          <div class="fc-emoji">${w.emoji||'📖'}</div>
+          <div class="fc-word">${esc(w.sourceWord||w.indonesian)}</div>
+          <div class="fc-lang">${w.sourceLang||'Indonesian'}</div>
+          <div class="fc-hint">点击翻转 · 左滑不会 · 右滑记得 👆</div>
+        </div>
+        <div class="fc-face fc-back" id="fc-back">
+          ${w.imageUrl?`<img class="fc-img" src="${w.imageUrl}" onerror="this.style.display='none'" alt="">`:'' }
+          <button class="fc-audio" data-w="${esc(w.indonesian)}" onclick="event.stopPropagation();speak(this.dataset.w)">
+            🔊 朗读印尼语
+          </button>
+          <div class="fc-ido">${esc(w.indonesian)}</div>
+          <div class="fc-pron">${esc(w.pronunciation||'')}</div>
+          <div class="fc-sec" style="width:100%;margin-top:4px">
+            <div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap;text-align:center;align-items:flex-start">
+              ${w.chinese?`<div><div class="fc-sec-lbl">中文</div><div class="fc-sec-txt" style="font-size:18px;font-weight:700;color:var(--text)">${esc(w.chinese)}</div></div>`:''}
+              ${w.english?`<div><div class="fc-sec-lbl">English</div><div class="fc-sec-txt" style="font-size:15px;color:var(--text2)">${esc(w.english)}</div></div>`:''}
+              ${w.sourceWord&&w.sourceLang==='Chinese'?`<div><div class="fc-sec-lbl">原文</div><div class="fc-sec-txt" style="font-size:15px;color:var(--text2)">${esc(w.sourceWord)}</div></div>`:''}
+            </div>
+          </div>
+          ${w.mnemonic?`<div class="fc-sec"><div class="fc-sec-lbl">💡 记忆技巧</div><div class="fc-sec-txt">${esc(w.mnemonic)}</div></div>`:''}
+          ${relatedHtml}
+        </div>
+      </div>
+    </div>
+
+    <div class="swipe-hint" id="swipe-hint">← 左滑不会 &nbsp;|&nbsp; 右滑记得 →</div>
+    <div class="rating-btns" id="rbtns" style="display:none">
+      <button class="rb rb-again" onclick="rate(0)"><span>🔴</span>不会</button>
+      <button class="rb rb-hard"  onclick="rate(1)"><span>🟡</span>难</button>
+      <button class="rb rb-good"  onclick="rate(2)"><span>🟢</span>记得</button>
+      <button class="rb rb-easy"  onclick="rate(3)"><span>⭐</span>简单</button>
+    </div>
+    <div id="flip-hint" style="text-align:center;font-size:11px;color:var(--text3);margin-top:6px">翻转后选择掌握程度</div>
+  `;
+
+  initSwipe();
+}
+
+// ── SWIPE GESTURES ─────────────────────────────────────
+function initSwipe() {
+  const el = document.getElementById('fcs');
+  if (!el) return;
+  touchStartX = 0; touchDeltaX = 0; touchActive = false;
+
+  el.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchDeltaX = 0;
+    touchActive = true;
+    const inner = document.getElementById('fci');
+    if (inner) inner.style.transition = 'none';
+  }, {passive:true});
+
+  el.addEventListener('touchmove', e => {
+    if (!touchActive) return;
+    touchDeltaX = e.touches[0].clientX - touchStartX;
+    const inner = document.getElementById('fci');
+    const overlay = document.getElementById('swipe-overlay');
+    if (inner) inner.style.transform = `translateX(${touchDeltaX}px) rotate(${touchDeltaX*0.025}deg)`;
+    if (overlay) {
+      if (touchDeltaX > 40) {
+        overlay.style.background='rgba(52,168,83,0.35)';overlay.style.display='flex';overlay.textContent='✓ 记得';
+      } else if (touchDeltaX < -40) {
+        overlay.style.background='rgba(234,67,53,0.35)';overlay.style.display='flex';overlay.textContent='✗ 不会';
+      } else {
+        overlay.style.display='none';
+      }
+    }
+  }, {passive:true});
+
+  el.addEventListener('touchend', () => {
+    if (!touchActive) return;
+    touchActive = false;
+    const inner = document.getElementById('fci');
+    const overlay = document.getElementById('swipe-overlay');
+    if (overlay) overlay.style.display='none';
+
+    if (Math.abs(touchDeltaX) > 90 && flipped) {
+      // Swipe out
+      const dir = touchDeltaX > 0 ? 1 : -1;
+      if (inner) { inner.style.transition='transform 0.28s'; inner.style.transform=`translateX(${dir*500}px) rotate(${dir*20}deg)`; }
+      setTimeout(()=>rate(dir>0?2:0), 280);
+    } else if (Math.abs(touchDeltaX) < 10 && !flipped) {
+      // Tap to flip
+      flip();
+    } else {
+      // Snap back
+      if (inner) { inner.style.transition='transform 0.3s'; inner.style.transform=''; }
+    }
+  });
+}
+
+function handleCardClick() {
+  // Only handle click (not swipe-ending) from mouse users
+  if (Math.abs(touchDeltaX) < 10) flip();
+}
+
+function flip() {
+  if (flipped) return; flipped = true;
+  document.getElementById('fcs')?.classList.add('flipped');
+  const rb = document.getElementById('rbtns');
+  const fh = document.getElementById('flip-hint');
+  const sh = document.getElementById('swipe-hint');
+  if (rb) rb.style.display='grid';
+  if (fh) fh.style.display='none';
+  if (sh) sh.style.display='none';
+  const w = queue[qIdx];
+  if (w?.indonesian) setTimeout(()=>speak(w.indonesian), 550);
+}
+
+function rate(grade) {
+  const w = queue[qIdx];
+  const i = db.vocab.findIndex(v=>v.id===w.id);
+  if (i>=0) { db.vocab[i]=sm2(db.vocab[i],grade); save(); }
+  qIdx++; renderCard();
+}
+
+// ── WORDS ──────────────────────────────────────────────
+function renderWords() {
+  const all=db.vocab, nw=all.filter(w=>status(w)==='new'),
+    lr=all.filter(w=>status(w)==='learning'), ms=all.filter(w=>status(w)==='mastered'),
+    st=all.filter(w=>w.starred);
+  document.getElementById('cnt-all').textContent=`(${all.length})`;
+  document.getElementById('cnt-new').textContent=`(${nw.length})`;
+  document.getElementById('cnt-learning').textContent=`(${lr.length})`;
+  document.getElementById('cnt-mastered').textContent=`(${ms.length})`;
+  document.getElementById('cnt-star').textContent=`(${st.length})`;
+  filterWords(curFilter);
+}
+
+function filterWords(f, btn) {
+  curFilter=f;
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else document.querySelectorAll('.ftab')[[
+    'all','new','learning','mastered','starred'].indexOf(f)]?.classList.add('active');
+
+  const topicZH={'Bisnis':'商务','Teknologi':'科技','Kehidupan':'生活','Makanan':'饮食',
+    'Perjalanan':'旅行','Kesehatan':'健康','Pendidikan':'教育','Lainnya':'其他'};
+  let words=db.vocab;
+  if (f==='starred') words=words.filter(w=>w.starred);
+  else if (f!=='all') words=words.filter(w=>status(w)===f);
+
+  const g=document.getElementById('words-grid');
+  if (!words.length) {
+    g.innerHTML=`<div class="empty"><div class="icon">${f==='starred'?'⭐':'📭'}</div>
+      <h3>${f==='starred'?'暂无收藏':'暂无词汇'}</h3>
+      <p>${f==='starred'?'学习时点击☆收藏单词':'去导入页面提取词汇'}</p></div>`;
+    return;
+  }
+  g.innerHTML=`<div class="word-grid">${words.map(w=>`
+    <div class="wc">
+      <div class="wc-dot dot-${status(w)}"></div>
+      <button class="wc-star ${w.starred?'starred':''}" data-id="${w.id}" onclick="toggleStar(${w.id},event)">${w.starred?'⭐':'☆'}</button>
+      <div class="wc-emoji">${w.emoji||'📖'}</div>
+      <div class="wc-ido">${esc(w.indonesian)}</div>
+      ${w.chinese?`<div class="wc-en" style="color:var(--text);font-weight:600">${esc(w.chinese)}</div>`:''}
+      ${w.english?`<div class="wc-en">${esc(w.english)}</div>`:''}
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">${esc(topicZH[w.topic]||w.topic||'')}</div>
+    </div>`).join('')}</div>`;
+}
+
+// ── STATS ──────────────────────────────────────────────
+function renderStats() {
+  const v=db.vocab;
+  const ms=v.filter(w=>status(w)==='mastered').length;
+  const totalR=v.reduce((s,w)=>s+(w.totalReviews||0),0);
+  const totalC=v.reduce((s,w)=>s+(w.correct||0),0);
+  const acc=totalR>0?Math.round((totalC/totalR)*100)+'%':'—';
+  document.getElementById('s-total').textContent=v.length;
+  document.getElementById('s-mastered').textContent=ms;
+  document.getElementById('s-streak').textContent=db.meta.streak||0;
+  document.getElementById('s-due').textContent=due().length;
+  document.getElementById('s-sessions').textContent=db.meta.totalSessions||0;
+  document.getElementById('s-acc').textContent=acc;
+
+  const TOPIC_ZH={'Bisnis':'商务','Teknologi':'科技','Kehidupan':'生活','Makanan':'饮食',
+    'Perjalanan':'旅行','Kesehatan':'健康','Pendidikan':'教育','Lainnya':'其他'};
+  const topics={};
+  v.forEach(w=>{const t=w.topic||'Lainnya';topics[t]=(topics[t]||0)+1;});
+  const max=Math.max(...Object.values(topics),1);
+  document.getElementById('chart').innerHTML = Object.entries(topics).sort((a,b)=>b[1]-a[1])
+    .map(([t,n])=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <div style="width:70px;font-size:11px;color:var(--text2);text-align:right;flex-shrink:0">${esc(TOPIC_ZH[t]||t)}</div>
+      <div style="flex:1;background:var(--surface2);border-radius:3px;height:18px;overflow:hidden">
+        <div style="width:${Math.round((n/max)*100)}%;background:var(--blue);height:100%;border-radius:3px"></div>
+      </div>
+      <div style="width:20px;font-size:11px;color:var(--text3)">${n}</div>
+    </div>`).join('');
+}
+
+// ── UTILS ──────────────────────────────────────────────
+function setStatus(view,msg,type) {
+  const el=document.getElementById(view+'-status');
+  if (!el) return;
+  el.textContent=msg; el.className='status '+type+' show';
+}
+let _tt;
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),2600);
+}
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function exportData() {
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='indolearn_backup.json'; a.click();
+}
+function importData() { document.getElementById('import-file').click(); }
+function handleImportFile(input) {
+  const file=input.files[0]; if (!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try {
+      const data=JSON.parse(e.target.result);
+      db={...db,...data}; save(); loadSettingsUI();
+      toast(`导入成功，共 ${db.vocab.length} 个词汇`);
+    } catch { toast('文件格式有误'); }
+  };
+  reader.readAsText(file);
+  input.value='';
+}
+function clearAll() {
+  if (confirm('确认清空所有学习数据？')) {
+    db={vocab:[],settings:db.settings,meta:{streak:0,lastStudyDate:null,totalSessions:0}};
+    save(); toast('已清空'); showView('import');
+  }
+}
+
+// ── INIT ───────────────────────────────────────────────
+load();
+applyDarkMode();
+loadSettingsUI();
+trySilentGmailConnect();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.IndoLearn" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#CC0001</item>
+        <item name="colorPrimaryVariant">#990000</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="android:statusBarColor">#CC0001</item>
+        <item name="android:navigationBarColor">#CC0001</item>
+    </style>
+</resources>
