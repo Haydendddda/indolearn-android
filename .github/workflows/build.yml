@@ -1,9 +1,10 @@
-name: Build APK
+name: Build & Release APK
 
 on:
   push:
-    branches: [ main, master ]
-  workflow_dispatch:   # allow manual trigger from GitHub UI
+    tags:
+      - 'v*'          # trigger on version tags like v1.0.5
+  workflow_dispatch:  # allow manual trigger from GitHub UI
 
 jobs:
   build:
@@ -25,12 +26,35 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug --no-daemon
+      - name: Build signed release APK
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Rename APK
+        run: |
+          VERSION=$(grep versionName app/build.gradle.kts | grep -o '"[^"]*"' | tr -d '"')
+          mv app/build/outputs/apk/release/app-release.apk \
+             app/build/outputs/apk/release/IndoLearn-v${VERSION}.apk
+          echo "APK_PATH=app/build/outputs/apk/release/IndoLearn-v${VERSION}.apk" >> $GITHUB_ENV
+          echo "VERSION=v${VERSION}" >> $GITHUB_ENV
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: IndoLearn-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: IndoLearn-release
+          path: ${{ env.APK_PATH }}
           retention-days: 30
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.APK_PATH }}
+          tag_name: ${{ github.ref_name }}
+          name: "IndoLearn ${{ env.VERSION }}"
+          body: |
+            ## 更新内容
+            见 version.json changelog 字段。
