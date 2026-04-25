@@ -623,21 +623,36 @@ async function handlePdfFile(file) {
 // ── GMAIL ──────────────────────────────────────────────
 function connectGmail() {
   if (!db.settings.googleClientId) { toast('请先在设置中填写 Google OAuth Client ID'); showView('setup'); return; }
+
+  // Android native OAuth — opens Chrome Custom Tab, result comes back via onGmailTokenReceived()
+  if (window.AndroidBridge) {
+    window.AndroidBridge.startGmailOAuth(db.settings.googleClientId);
+    toast('正在跳转 Google 授权...');
+    return;
+  }
+
   if (!window.google?.accounts?.oauth2) { toast('Google 库尚未加载，请稍候'); return; }
   const client = window.google.accounts.oauth2.initTokenClient({
     client_id: db.settings.googleClientId,
     scope: 'https://www.googleapis.com/auth/gmail.readonly',
     callback: r => {
       if (r.error) { toast('连接失败: '+r.error); return; }
-      gmailToken = r.access_token;
-      document.getElementById('gm-off').style.display = 'none';
-      document.getElementById('gm-on').style.display = 'block';
-      document.getElementById('gmail-badge').textContent = '✓ 已连接';
-      toast('Gmail 连接成功，开始自动导入邮件...');
-      autoImportAllEmails();
+      onGmailTokenReceived(r.access_token);
     }
   });
   client.requestAccessToken();
+}
+
+// Called by Android (via evaluateJavascript) after OAuth completes,
+// and also by the GIS callback and silent reconnect path.
+function onGmailTokenReceived(token) {
+  if (!token) { toast('Gmail 授权失败'); return; }
+  gmailToken = token;
+  document.getElementById('gm-off').style.display = 'none';
+  document.getElementById('gm-on').style.display = 'block';
+  document.getElementById('gmail-badge').textContent = '✓ 已连接';
+  toast('Gmail 连接成功，开始自动导入邮件...');
+  autoImportAllEmails();
 }
 
 function disconnectGmail() {
