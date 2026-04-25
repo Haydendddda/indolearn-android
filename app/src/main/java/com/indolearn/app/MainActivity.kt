@@ -304,7 +304,7 @@ class MainActivity : AppCompatActivity() {
             if (!packageManager.canRequestPackageInstalls()) {
                 Toast.makeText(
                     this,
-                    "请在接下来的设置页面开启"允许安装未知应用"，然后重新点击更新",
+                    "请在接下来的设置页面开启「允许安装未知应用」权限，然后重新点击更新",
                     Toast.LENGTH_LONG
                 ).show()
                 startActivity(
