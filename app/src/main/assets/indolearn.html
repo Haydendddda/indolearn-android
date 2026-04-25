@@ -1165,9 +1165,16 @@ function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function exportData() {
-  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download='indolearn_backup.json'; a.click();
+  const json = JSON.stringify(db, null, 2);
+  if (window.AndroidBridge) {
+    // Android WebView: a.download doesn't work — delegate to native saveBackup()
+    window.AndroidBridge.saveBackup(json);
+    return;
+  }
+  const blob = new Blob([json], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'indolearn_backup.json'; a.click();
 }
 function importData() { document.getElementById('import-file').click(); }
 function handleImportFile(input) {

@@ -3,16 +3,21 @@ package com.indolearn.app
 import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.content.BroadcastReceiver
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.provider.Settings
 import android.speech.tts.TextToSpeech
 import android.webkit.*
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
@@ -49,9 +54,23 @@ class MainActivity : AppCompatActivity() {
     private var tts: TextToSpeech? = null
     private var ttsReady = false
 
+    // File chooser callback for <input type="file"> in WebView
+    private var fileChooserCallback: ValueCallback<Array<Uri>>? = null
+    private lateinit var filePickerLauncher: ActivityResultLauncher<Intent>
+
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Register file picker for WebView <input type="file"> (import backup)
+        filePickerLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            val cb = fileChooserCallback ?: return@registerForActivityResult
+            fileChooserCallback = null
+            val uri = if (result.resultCode == RESULT_OK) result.data?.data else null
+            cb.onReceiveValue(if (uri != null) arrayOf(uri) else null)
+        }
 
         // Init TextToSpeech with Indonesian locale
         tts = TextToSpeech(this) { status ->
@@ -89,6 +108,24 @@ class MainActivity : AppCompatActivity() {
 
         webView.webChromeClient = object : WebChromeClient() {
             override fun onConsoleMessage(m: ConsoleMessage): Boolean = true
+
+            // Required for <input type="file"> to open the system file picker in WebView
+            override fun onShowFileChooser(
+                webView: WebView,
+                filePathCallback: ValueCallback<Array<Uri>>,
+                fileChooserParams: FileChooserParams
+            ): Boolean {
+                fileChooserCallback?.onReceiveValue(null)  // cancel any pending
+                fileChooserCallback = filePathCallback
+                val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "application/json"
+                }
+                try { filePickerLauncher.launch(intent) } catch (_: Exception) {
+                    fileChooserCallback = null; return false
+                }
+                return true
+            }
         }
 
         webView.webViewClient = object : WebViewClient() {
@@ -293,6 +330,47 @@ class MainActivity : AppCompatActivity() {
                 IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
                 ContextCompat.RECEIVER_EXPORTED
             )
+        }
+
+        /**
+         * Saves JSON backup string to the Downloads folder.
+         * JS: window.AndroidBridge.saveBackup(jsonString)
+         */
+        @JavascriptInterface
+        fun saveBackup(json: String) {
+            runOnUiThread {
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        val values = ContentValues().apply {
+                            put(MediaStore.Downloads.DISPLAY_NAME, "indolearn_backup.json")
+                            put(MediaStore.Downloads.MIME_TYPE, "application/json")
+                            put(MediaStore.Downloads.IS_PENDING, 1)
+                        }
+                        val uri = contentResolver.insert(
+                            MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+                        if (uri != null) {
+                            contentResolver.openOutputStream(uri)?.use { it.write(json.toByteArray()) }
+                            values.clear()
+                            values.put(MediaStore.Downloads.IS_PENDING, 0)
+                            contentResolver.update(uri, values, null, null)
+                            Toast.makeText(this@MainActivity,
+                                "备份已保存到「下载」文件夹", Toast.LENGTH_LONG).show()
+                        }
+                    } else {
+                        @Suppress("DEPRECATION")
+                        val dir = Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_DOWNLOADS)
+                        dir.mkdirs()
+                        val file = java.io.File(dir, "indolearn_backup.json")
+                        file.writeText(json)
+                        Toast.makeText(this@MainActivity,
+                            "备份已保存：${file.name}", Toast.LENGTH_LONG).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(this@MainActivity,
+                        "导出失败：${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
         }
 
         @JavascriptInterface

@@ -1,6 +1,6 @@
 {
-  "version_code": 12,
-  "version": "1.0.12",
+  "version_code": 13,
+  "version": "1.0.13",
   "apk_url": "https://1232131.xyz/indolearn/app.apk",
-  "changelog": "v1.0.12: 卡片可直接左右滑动（无需先翻转）；词库新增删除单词功能"
+  "changelog": "v1.0.13: 修复本地导出备份（保存到下载文件夹）；修复导入备份文件选择器"
 }
