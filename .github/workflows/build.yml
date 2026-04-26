@@ -76,6 +76,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Check token
+        run: |
+          if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]; then
+            echo "❌ CLOUDFLARE_API_TOKEN secret is not set! Skipping deploy."
+            exit 1
+          fi
+          echo "✅ CLOUDFLARE_API_TOKEN is set, proceeding with deploy..."
       - name: Deploy Cloudflare Worker (after APK is live)
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -83,3 +90,4 @@ jobs:
           npm install -g wrangler
           cd cloudflare
           wrangler deploy
+          echo "✅ Worker deployed successfully"
