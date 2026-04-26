@@ -1,6 +1,6 @@
 {
-  "version_code": 14,
-  "version": "1.0.14",
+  "version_code": 15,
+  "version": "1.0.15",
   "apk_url": "https://1232131.xyz/indolearn/app.apk",
-  "changelog": "v1.0.14: 统计模块全面升级（等级系统、热力图、最难单词）；优化 Google 授权页面 UX；修复 APK 更新时序问题"
+  "changelog": "v1.0.15: 支持 Word/Excel/CSV/TXT 文件导入；Gemini 无需配置 Key；更新地址自动内置"
 }

@@ -6,6 +6,8 @@
 <title>IndoLearn v2 — 智能印尼语学习</title>
 <!-- GIS OAuth handled by Android bridge -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 /* ── TOKENS ─────────────────────────────────────────── */
 :root {
@@ -258,16 +260,16 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
       </div>
     </div>
 
-    <!-- PDF -->
+    <!-- FILE UPLOAD -->
     <div class="ipanel" id="ip-pdf">
       <div class="upload-zone" id="pdf-zone" onclick="document.getElementById('pdf-input').click()"
         ondragover="event.preventDefault();this.classList.add('drag-over')"
         ondragleave="this.classList.remove('drag-over')"
-        ondrop="handlePdfDrop(event)">
-        <input type="file" id="pdf-input" accept=".pdf" onchange="handlePdfFile(this.files[0])">
-        <div style="font-size:40px;margin-bottom:8px">📄</div>
-        <div style="font-size:14px;font-weight:600;margin-bottom:4px">点击或拖拽 PDF 文件</div>
-        <div style="font-size:12px;color:var(--text3)">自动提取文字后送入 AI 分析</div>
+        ondrop="handleFileDrop(event)">
+        <input type="file" id="pdf-input" accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.txt" onchange="handleAnyFile(this.files[0])">
+        <div style="font-size:40px;margin-bottom:8px">📂</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px">点击或拖拽文件</div>
+        <div style="font-size:12px;color:var(--text3)">支持 PDF · Word · Excel · CSV · TXT · 自动提取文字后 AI 分析</div>
       </div>
       <div id="pdf-progress" style="font-size:12px;color:var(--text2);margin-top:8px;display:none"></div>
     </div>
@@ -360,9 +362,9 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
   <div class="card">
     <div class="card-title">🔑 API 配置</div>
     <div class="field">
-      <label>Gemini API Key（必填）</label>
-      <input type="password" id="cfg-gemini" placeholder="AIza...">
-      <div class="hint">在 <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> 获取 · 使用 gemini-2.5-flash-lite 模型</div>
+      <label>Gemini API Key（选填）</label>
+      <input type="password" id="cfg-gemini" placeholder="留空使用内置服务，或填入自己的 Key">
+      <div class="hint">留空即可直接使用 · 如有自己的 Key 填入后优先使用 · <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio 获取</a></div>
     </div>
     <div class="field">
       <label>Google OAuth Client ID（Gmail 连接 + 云端同步用）</label>
@@ -371,7 +373,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
     </div>
     <div class="field">
       <label>自动更新地址（选填）</label>
-      <input type="text" id="cfg-update-url" placeholder="https://yourdomain.com/indolearn/version.json">
+      <input type="text" id="cfg-update-url" placeholder="https://yourdomain.com/indolearn/version.json" value="https://1232131.xyz/indolearn/version.json">
       <div class="hint">填入后 App 每次启动自动检查新版本。JSON 格式：<code>{"version_code":5,"version":"1.0.5","apk_url":"...","changelog":"..."}</code></div>
     </div>
     <button class="btn btn-primary btn-block" onclick="saveSettings()">💾 保存设置</button>
@@ -418,6 +420,8 @@ let touchStartX = 0, touchDeltaX = 0, touchActive = false;
 // ── STORAGE ────────────────────────────────────────────
 function load() {
   try { const r = localStorage.getItem(KEY); if (r) db = {...db, ...JSON.parse(r)}; } catch(e) {}
+  // Hardcoded defaults — never need manual setup
+  if (!db.settings.updateUrl) db.settings.updateUrl = 'https://1232131.xyz/indolearn/version.json';
 }
 function save() { localStorage.setItem(KEY, JSON.stringify(db)); }
 
@@ -446,7 +450,8 @@ function saveSettings() {
 function loadSettingsUI() {
   document.getElementById('cfg-gemini').value = db.settings.geminiKey || '';
   document.getElementById('cfg-gid').value = db.settings.googleClientId || '';
-  document.getElementById('cfg-update-url').value = db.settings.updateUrl || '';
+  // Auto-update URL: use saved value or hardcoded default
+  document.getElementById('cfg-update-url').value = db.settings.updateUrl || 'https://1232131.xyz/indolearn/version.json';
 }
 function manualCheckUpdate() {
   const url = db.settings.updateUrl;
@@ -581,17 +586,28 @@ async function wikiImg(word) {
 }
 
 // ── GEMINI ─────────────────────────────────────────────
-const GURL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
+// Calls Cloudflare Worker proxy — API key stored server-side, not in APK
+const GEMINI_PROXY = 'https://1232131.xyz/gemini';
 async function gemini(prompt) {
+  // Fallback: if user has their own key set, use it directly
   const key = db.settings.geminiKey;
-  if (!key) throw new Error('请先在设置中填写 Gemini API Key');
-  const r = await fetch(`${GURL}?key=${key}`, {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:{temperature:0.4}})
-  });
+  let r;
+  if (key) {
+    const GURL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
+    r = await fetch(`${GURL}?key=${key}`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:{temperature:0.4}})
+    });
+  } else {
+    // Use shared proxy
+    r = await fetch(GEMINI_PROXY, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({prompt})
+    });
+  }
   const d = await r.json();
   if (!r.ok) throw new Error(d?.error?.message || `HTTP ${r.status}`);
-  return d?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  return d?.candidates?.[0]?.content?.parts?.[0]?.text || d?.text || '';
 }
 
 // ── EXTRACT VOCAB ──────────────────────────────────────
@@ -603,7 +619,7 @@ function getInputText() {
 async function extractVocab(fromGmail=false) {
   const text = fromGmail ? document.getElementById('input-text').value.trim() : getInputText();
   if (!text) { setStatus('import','请先输入文本','error'); return; }
-  if (!db.settings.geminiKey) { setStatus('import','请先在设置中填写 Gemini API Key','error'); showView('setup'); return; }
+  // Gemini key no longer required — proxy handles it
 
   const btn = document.getElementById('extract-btn');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> 正在分析...';
@@ -677,34 +693,89 @@ async function fetchImagesBackground(words) {
   }
 }
 
-// ── PDF IMPORT ─────────────────────────────────────────
-function handlePdfDrop(event) {
+// ── FILE IMPORT (PDF / DOCX / XLSX / CSV / TXT) ──────────────────────────────
+function handleFileDrop(event) {
   event.preventDefault();
   document.getElementById('pdf-zone').classList.remove('drag-over');
   const file = event.dataTransfer.files[0];
-  if (file?.type === 'application/pdf') handlePdfFile(file);
+  if (file) handleAnyFile(file);
 }
 
-async function handlePdfFile(file) {
+// Legacy alias kept in case called elsewhere
+function handlePdfFile(file) { handleAnyFile(file); }
+
+async function handleAnyFile(file) {
   if (!file) return;
   const prog = document.getElementById('pdf-progress');
   prog.style.display = 'block';
-  prog.textContent = `📄 正在解析 ${file.name}...`;
+  prog.textContent = `📂 正在解析 ${file.name}...`;
+
+  const name = file.name.toLowerCase();
   try {
-    const buf = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({data: buf}).promise;
     let text = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      text += content.items.map(item => item.str).join(' ') + '\n';
-      prog.textContent = `📄 解析中... ${i}/${pdf.numPages} 页`;
+
+    if (name.endsWith('.pdf')) {
+      // ── PDF ──
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({data: buf}).promise;
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(item => item.str).join(' ') + '\n';
+        prog.textContent = `📄 解析中... ${i}/${pdf.numPages} 页`;
+      }
+      prog.textContent = `✅ PDF 解析完成，${pdf.numPages} 页，${text.length} 字符`;
+
+    } else if (name.endsWith('.docx') || name.endsWith('.doc')) {
+      // ── Word ──
+      prog.textContent = '📝 正在解析 Word 文档...';
+      const buf = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({arrayBuffer: buf});
+      text = result.value;
+      prog.textContent = `✅ Word 解析完成，${text.length} 字符`;
+
+    } else if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
+      // ── Excel ──
+      prog.textContent = '📊 正在解析 Excel 文件...';
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, {type: 'array'});
+      const lines = [];
+      for (const sheetName of wb.SheetNames) {
+        const ws = wb.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+        lines.push(`--- ${sheetName} ---`);
+        for (const row of rows) {
+          const line = row.filter(c => c !== '').join('\t');
+          if (line) lines.push(line);
+        }
+      }
+      text = lines.join('\n');
+      prog.textContent = `✅ Excel 解析完成，${wb.SheetNames.length} 个工作表，${text.length} 字符`;
+
+    } else if (name.endsWith('.csv')) {
+      // ── CSV ──
+      prog.textContent = '📊 正在读取 CSV...';
+      text = await file.text();
+      // Convert CSV rows to tab-separated for readability
+      text = text.split('\n').map(r => r.replace(/,/g, '\t')).join('\n');
+      prog.textContent = `✅ CSV 读取完成，${text.length} 字符`;
+
+    } else if (name.endsWith('.txt')) {
+      // ── TXT ──
+      prog.textContent = '📄 正在读取文本...';
+      text = await file.text();
+      prog.textContent = `✅ 文本读取完成，${text.length} 字符`;
+
+    } else {
+      prog.textContent = '❌ 不支持的文件格式（支持 PDF、Word、Excel、CSV、TXT）';
+      return;
     }
-    prog.textContent = `✅ 解析完成，共 ${pdf.numPages} 页，${text.length} 字符`;
-    // Switch to text tab and fill
-    document.getElementById('input-text').value = text.substring(0, 4000);
+
+    if (!text.trim()) { prog.textContent = '❌ 未能提取到文字内容'; return; }
+    document.getElementById('input-text').value = text.substring(0, 5000);
     switchImportTab('text', document.querySelectorAll('.itab')[0]);
-    toast('PDF 解析完成，点击「提取词汇」开始分析');
+    toast('文件解析完成，点击「提取词汇」开始分析 ✓');
+
   } catch(e) {
     prog.textContent = `❌ 解析失败: ${e.message}`;
   }
