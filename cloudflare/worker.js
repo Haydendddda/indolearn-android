@@ -13,22 +13,22 @@ export default {
 
     if (path === '/indolearn/version.json') {
       return new Response(JSON.stringify({
-        version_code: 15,
-        version: "1.0.15",
+        version_code: 16,
+        version: "1.0.16",
         apk_url: "https://1232131.xyz/indolearn/app.apk",
-        changelog: "v1.0.15: 支持 Word/Excel/CSV/TXT 文件导入；Gemini 无需配置 Key；更新地址自动内置"
+        changelog: "v1.0.16: 词根词缀分析+联想记忆升级；设置页简化（无需配置 Gemini Key）"
       }, null, 2), { headers: { ...cors, 'Content-Type': 'application/json' } });
     }
 
     if (path === '/indolearn/app.apk') {
-      const apkUrl = 'https://github.com/Haydendddda/indolearn-android/releases/download/v1.0.15/IndoLearn-v1.0.15.apk';
+      const apkUrl = 'https://github.com/Haydendddda/indolearn-android/releases/download/v1.0.15/IndoLearn-v1.0.16.apk';
       try {
         const resp = await fetch(apkUrl, { redirect: 'follow' });
         if (!resp.ok) return new Response('APK fetch failed: ' + resp.status, { status: 502 });
         return new Response(resp.body, {
           headers: {
             'Content-Type': 'application/vnd.android.package-archive',
-            'Content-Disposition': 'attachment; filename="IndoLearn-v1.0.15.apk"',
+            'Content-Disposition': 'attachment; filename="IndoLearn-v1.0.16.apk"',
             'Access-Control-Allow-Origin': '*',
             'Cache-Control': 'public, max-age=86400'
           }
@@ -88,7 +88,7 @@ export default {
           <div>
             <h1 class="app-name">IndoLearn</h1>
             <p class="app-tagline">AI 驱动的印尼语词汇学习 Android 应用</p>
-            <span class="badge">v1.0.15</span>
+            <span class="badge">v1.0.16</span>
             <span class="badge badge-green">免费开源</span>
           </div>
         </div>
@@ -135,7 +135,7 @@ export default {
           <h2>⬇️ 下载安装</h2>
           <p style="color:var(--text2);margin-bottom:20px">支持 Android 7.0+，需要开启「允许安装未知来源应用」</p>
           <div class="download-btns">
-            <a class="btn-dl btn-primary-dl" href="/indolearn/app.apk">⬇️ 下载 APK（v1.0.15）</a>
+            <a class="btn-dl btn-primary-dl" href="/indolearn/app.apk">⬇️ 下载 APK（v1.0.16）</a>
             <a class="btn-dl btn-ghost-dl" href="https://github.com/Haydendddda/indolearn-android/releases" target="_blank">📦 GitHub Releases</a>
           </div>
           <p style="font-size:12px;color:var(--text2);margin-top:14px">APK 经过 Cloudflare 代理，国内网络可直接下载</p>
@@ -151,10 +151,14 @@ export default {
           <div style="display:flex;flex-direction:column;gap:12px">
             <div style="border-left:3px solid var(--accent);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-                <span class="badge" style="margin:0">v1.0.15</span>
+                <span class="badge" style="margin:0">v1.0.16</span>
                 <span style="font-size:12px;color:var(--text2)">最新版本</span>
               </div>
-              <p style="margin:0;font-size:14px;color:var(--text)">新增 Word / Excel / CSV / TXT 文件导入；Gemini 无需手动配置 Key；自动更新地址内置</p>
+              <p style="margin:0;font-size:14px;color:var(--text)">词根词缀分析 + 联想记忆全面升级；设置页简化，无需配置 Gemini Key</p>
+            </div>
+            <div style="border-left:3px solid var(--border);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
+              <div style="margin-bottom:4px"><span class="badge" style="margin:0">v1.0.15</span></div>
+              <p style="margin:0;font-size:14px;color:var(--text2)">新增 Word / Excel / CSV / TXT 文件导入；Gemini 无需手动配置 Key；自动更新地址内置</p>
             </div>
             <div style="border-left:3px solid var(--border);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
               <div style="margin-bottom:4px"><span class="badge" style="margin:0">v1.0.14</span></div>
