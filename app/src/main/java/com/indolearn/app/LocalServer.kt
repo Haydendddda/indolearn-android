@@ -52,9 +52,32 @@ class LocalServer(private val context: Context, val port: Int = 8765) {
             // app's deep-link scheme so onNewIntent() can pick it up.
             if (path == "oauth2redirect") {
                 val html = """<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>授权中...</title></head>
+<html><head><meta charset="utf-8"><title>授权成功</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body{margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;
+    font-family:-apple-system,sans-serif;background:#f8f9fa;text-align:center;padding:24px;box-sizing:border-box}
+  .card{background:#fff;border-radius:20px;padding:36px 28px;box-shadow:0 4px 24px rgba(0,0,0,.08);max-width:320px;width:100%}
+  .icon{font-size:56px;margin-bottom:12px}
+  h2{margin:0 0 8px;font-size:20px;color:#1a1a2e}
+  p{margin:0 0 24px;font-size:14px;color:#888;line-height:1.5}
+  .btn{display:inline-block;background:#4285f4;color:#fff;border:none;border-radius:12px;
+    padding:12px 28px;font-size:15px;font-weight:600;cursor:pointer;text-decoration:none}
+  .err{color:#ea4335}
+</style></head>
 <body>
-<p>正在完成授权，请稍候...</p>
+<div class="card" id="ok">
+  <div class="icon">✅</div>
+  <h2>授权成功！</h2>
+  <p>正在返回 IndoLearn…<br>如未自动跳转，请点击下方按钮</p>
+  <button class="btn" onclick="history.back()">返回应用</button>
+</div>
+<div class="card" id="err" style="display:none">
+  <div class="icon">❌</div>
+  <h2 class="err">授权失败</h2>
+  <p>未收到访问令牌，请重试</p>
+  <button class="btn" style="background:#ea4335" onclick="history.back()">返回</button>
+</div>
 <script>
 var hash = window.location.hash;
 var search = window.location.search;
@@ -63,7 +86,8 @@ if (hash && hash.length > 1) {
 } else if (search) {
   window.location.href = 'com.indolearn.app://oauth2redirect' + search;
 } else {
-  document.body.innerText = '授权失败：未收到令牌';
+  document.getElementById('ok').style.display='none';
+  document.getElementById('err').style.display='';
 }
 </script>
 </body></html>""".trimIndent()

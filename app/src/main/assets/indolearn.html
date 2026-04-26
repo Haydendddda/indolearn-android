@@ -310,17 +310,46 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 <!-- STATS -->
 <div class="view" id="v-stats">
 <div class="container">
-  <div class="stats-grid">
-    <div class="stat-box"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">总词汇</div></div>
-    <div class="stat-box"><div class="stat-num" id="s-mastered">0</div><div class="stat-lbl">已掌握</div></div>
-    <div class="stat-box"><div class="stat-num" id="s-streak">0</div><div class="stat-lbl">连续天数</div></div>
-    <div class="stat-box"><div class="stat-num" id="s-due">0</div><div class="stat-lbl">今日待复习</div></div>
-    <div class="stat-box"><div class="stat-num" id="s-sessions">0</div><div class="stat-lbl">学习次数</div></div>
-    <div class="stat-box"><div class="stat-num" id="s-acc">—</div><div class="stat-lbl">正确率</div></div>
+  <!-- Level card -->
+  <div class="card" style="text-align:center;padding:20px 16px 16px">
+    <div id="s-level-badge" style="font-size:44px;margin-bottom:6px">🌱</div>
+    <div id="s-level-name" style="font-size:19px;font-weight:700;color:var(--text);margin-bottom:3px">初学者</div>
+    <div id="s-level-sub" style="font-size:12px;color:var(--text2);margin-bottom:14px">继续加油！</div>
+    <div style="background:var(--surface2);border-radius:10px;height:10px;overflow:hidden;margin:0 4px">
+      <div id="s-prog-bar" style="height:100%;background:linear-gradient(90deg,var(--blue),var(--accent2));border-radius:10px;transition:width .7s ease;width:0%"></div>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-top:7px">
+      <span id="s-mastered2">0</span> / <span id="s-total2">0</span> 词已掌握（<span id="s-pct">0</span>%）
+    </div>
   </div>
+  <!-- Stats grid -->
+  <div class="stats-grid" style="margin-top:0">
+    <div class="stat-box"><div class="stat-num" id="s-streak">0</div><div class="stat-lbl">🔥 连续天</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-acc">—</div><div class="stat-lbl">🎯 正确率</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-due">0</div><div class="stat-lbl">📅 今日待复习</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-today">0</div><div class="stat-lbl">✅ 今日已复习</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-sessions">0</div><div class="stat-lbl">📖 学习次数</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">📚 总词汇</div></div>
+  </div>
+  <!-- 7-day heatmap -->
+  <div class="card">
+    <div class="card-title">📆 近7天复习活动</div>
+    <div id="s-heatmap" style="display:flex;gap:6px;justify-content:space-between;padding:4px 0"></div>
+  </div>
+  <!-- Hardest words -->
+  <div class="card">
+    <div class="card-title">💪 需要加强练习</div>
+    <div id="s-hard"></div>
+  </div>
+  <!-- Topic distribution -->
   <div class="card">
     <div class="card-title">📊 主题分布</div>
     <div id="chart"></div>
+  </div>
+  <!-- Next review -->
+  <div class="card" id="s-next-card" style="display:none">
+    <div class="card-title">⏰ 下次复习</div>
+    <div id="s-next"></div>
   </div>
 </div>
 </div>
@@ -1120,32 +1149,125 @@ function filterWords(f, btn) {
 
 // ── STATS ──────────────────────────────────────────────
 function renderStats() {
-  const v=db.vocab;
-  const ms=v.filter(w=>status(w)==='mastered').length;
+  const v=db.vocab, now=Date.now(), todayStr=new Date().toDateString();
+  const total=v.length, ms=v.filter(w=>status(w)==='mastered').length;
+  const pct=total>0?Math.round((ms/total)*100):0;
   const totalR=v.reduce((s,w)=>s+(w.totalReviews||0),0);
   const totalC=v.reduce((s,w)=>s+(w.correct||0),0);
   const acc=totalR>0?Math.round((totalC/totalR)*100)+'%':'—';
-  document.getElementById('s-total').textContent=v.length;
-  document.getElementById('s-mastered').textContent=ms;
+  const todayReviewed=v.filter(w=>w.lastReview&&new Date(w.lastReview).toDateString()===todayStr).length;
+
+  // Basic numbers
+  ['s-total','s-total2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=total;});
+  ['s-mastered2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=ms;});
+  const pe=document.getElementById('s-pct'); if(pe) pe.textContent=pct;
   document.getElementById('s-streak').textContent=db.meta.streak||0;
   document.getElementById('s-due').textContent=due().length;
+  document.getElementById('s-today').textContent=todayReviewed;
   document.getElementById('s-sessions').textContent=db.meta.totalSessions||0;
   document.getElementById('s-acc').textContent=acc;
 
+  // Progress bar
+  setTimeout(()=>{const b=document.getElementById('s-prog-bar');if(b)b.style.width=pct+'%';},120);
+
+  // Level
+  const lvs=[
+    {min:0,  emoji:'🌱', name:'初学者',   sub:'积累基础词汇，每天坚持！'},
+    {min:20, emoji:'📖', name:'学习中',   sub:'进步明显，继续保持！'},
+    {min:50, emoji:'🚀', name:'中级水平', sub:'已掌握过半，继续冲刺！'},
+    {min:80, emoji:'🏆', name:'高级水平', sub:'词汇量相当可观！'},
+    {min:100,emoji:'👑', name:'词汇大师', sub:'全部掌握，太厉害了！'}
+  ];
+  const lv=[...lvs].reverse().find(l=>pct>=l.min)||lvs[0];
+  document.getElementById('s-level-badge').textContent=lv.emoji;
+  document.getElementById('s-level-name').textContent=lv.name;
+  document.getElementById('s-level-sub').textContent=lv.sub;
+
+  // 7-day heatmap
+  const hm=document.getElementById('s-heatmap');
+  if(hm){
+    const days=[];
+    for(let i=6;i>=0;i--){
+      const d=new Date(now-i*86400000);
+      const ds=d.toDateString();
+      const cnt=v.filter(w=>w.lastReview&&new Date(w.lastReview).toDateString()===ds).length;
+      days.push({label:d.toLocaleDateString('zh',{weekday:'short'}),count:cnt,isToday:i===0});
+    }
+    const maxD=Math.max(...days.map(d=>d.count),1);
+    hm.innerHTML=days.map(d=>{
+      const opa=d.count>0?Math.max(0.25,d.count/maxD):0;
+      const bg=d.count>0?`rgba(66,133,244,${opa})`:'var(--surface2)';
+      const border=d.isToday?'2px solid var(--blue)':'1px solid var(--border)';
+      const txt=d.count>0?`color:#fff;font-weight:700`:`color:var(--text3)`;
+      return `<div style="flex:1;text-align:center">
+        <div style="width:100%;aspect-ratio:1;border-radius:8px;background:${bg};border:${border};
+          display:flex;align-items:center;justify-content:center;font-size:13px;${txt};margin-bottom:4px">${d.count||''}</div>
+        <div style="font-size:10px;color:var(--text3)">${d.label}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Hardest words
+  const hd=document.getElementById('s-hard');
+  if(hd){
+    const cands=v.filter(w=>(w.totalReviews||0)>=3)
+      .map(w=>({...w,rate:(w.correct||0)/(w.totalReviews||1)}))
+      .sort((a,b)=>a.rate-b.rate).slice(0,3);
+    if(!cands.length){
+      hd.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:8px 0">复习3次以上的词汇才会出现在这里</div>';
+    } else {
+      hd.innerHTML=cands.map(w=>{
+        const r=Math.round(w.rate*100);
+        const barC=r<50?'#ea4335':r<75?'#fbbc04':'#34a853';
+        return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+          <div style="font-size:22px">${esc(w.emoji||'📖')}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:14px">${esc(w.indonesian)}</div>
+            <div style="font-size:12px;color:var(--text2)">${esc(w.chinese||w.english||'')}</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
+              <div style="flex:1;background:var(--surface2);border-radius:4px;height:6px;overflow:hidden">
+                <div style="width:${r}%;background:${barC};height:100%;border-radius:4px"></div>
+              </div>
+              <div style="font-size:11px;color:var(--text3);white-space:nowrap">${r}% 正确 · ${w.totalReviews}次</div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // Topic distribution
   const TOPIC_ZH={'Bisnis':'商务','Teknologi':'科技','Kehidupan':'生活','Makanan':'饮食',
     'Perjalanan':'旅行','Kesehatan':'健康','Pendidikan':'教育','Lainnya':'其他'};
   const topics={};
   v.forEach(w=>{const t=w.topic||'Lainnya';topics[t]=(topics[t]||0)+1;});
-  const max=Math.max(...Object.values(topics),1);
-  document.getElementById('chart').innerHTML = Object.entries(topics).sort((a,b)=>b[1]-a[1])
-    .map(([t,n])=>`
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-      <div style="width:70px;font-size:11px;color:var(--text2);text-align:right;flex-shrink:0">${esc(TOPIC_ZH[t]||t)}</div>
-      <div style="flex:1;background:var(--surface2);border-radius:3px;height:18px;overflow:hidden">
-        <div style="width:${Math.round((n/max)*100)}%;background:var(--blue);height:100%;border-radius:3px"></div>
+  const maxT=Math.max(...Object.values(topics),1);
+  document.getElementById('chart').innerHTML=total===0
+    ?'<div style="color:var(--text3);font-size:13px;text-align:center;padding:8px 0">暂无词汇数据</div>'
+    :Object.entries(topics).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <div style="width:52px;font-size:12px;color:var(--text2);text-align:right;flex-shrink:0">${esc(TOPIC_ZH[t]||t)}</div>
+      <div style="flex:1;background:var(--surface2);border-radius:4px;height:20px;overflow:hidden">
+        <div style="width:${Math.round((n/maxT)*100)}%;background:var(--blue);height:100%;border-radius:4px;
+          display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:600">
+          ${n>maxT*0.25?n:''}</div>
       </div>
-      <div style="width:20px;font-size:11px;color:var(--text3)">${n}</div>
+      <div style="width:24px;font-size:12px;color:var(--text2);text-align:right">${n}</div>
     </div>`).join('');
+
+  // Next review
+  const nc=document.getElementById('s-next-card'),ne=document.getElementById('s-next');
+  const upcoming=v.filter(w=>w.nextReview&&w.nextReview>now).sort((a,b)=>a.nextReview-b.nextReview)[0];
+  if(upcoming&&nc&&ne){
+    nc.style.display='';
+    const diff=upcoming.nextReview-now, h=Math.floor(diff/3600000), m=Math.ceil((diff%3600000)/60000);
+    const ts=h>0?`${h}小时${m}分钟后`:`${m}分钟后`;
+    ne.innerHTML=`<div style="display:flex;align-items:center;gap:12px">
+      <div style="font-size:26px">${esc(upcoming.emoji||'📖')}</div>
+      <div><div style="font-weight:600;font-size:15px">${esc(upcoming.indonesian)}</div>
+      <div style="font-size:12px;color:var(--text2)">${ts}到期 · 当前间隔 ${upcoming.interval||0} 天</div></div>
+    </div>`;
+  } else if(nc){ nc.style.display='none'; }
 }
 
 // ── UTILS ──────────────────────────────────────────────

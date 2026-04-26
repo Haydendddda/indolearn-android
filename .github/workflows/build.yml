@@ -66,3 +66,20 @@ jobs:
           body: |
             ## 更新内容
             见 version.json changelog 字段。
+
+  deploy-cloudflare:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Deploy Cloudflare Worker (after APK is live)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          npm install -g wrangler
+          cd cloudflare
+          wrangler deploy
