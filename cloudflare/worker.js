@@ -12,25 +12,39 @@ export default {
     // ── IndoLearn API endpoints ──────────────────────────────────────────────
 
     if (path === '/indolearn/version.json') {
-      return new Response(JSON.stringify({
-        version_code: 16,
-        version: "1.0.16",
-        apk_url: "https://1232131.xyz/indolearn/app.apk",
-        changelog: "v1.0.16: 词根词缀分析+联想记忆升级；设置页简化（无需配置 Gemini Key）"
-      }, null, 2), { headers: { ...cors, 'Content-Type': 'application/json' } });
+      // Always fetch live from GitHub — no Worker redeploy needed on version bumps
+      try {
+        const ghUrl = 'https://raw.githubusercontent.com/Haydendddda/indolearn-android/main/version.json';
+        const ghResp = await fetch(ghUrl, { cf: { cacheEverything: true, cacheTtl: 60 } });
+        if (!ghResp.ok) throw new Error('GitHub fetch failed: ' + ghResp.status);
+        const data = await ghResp.text();
+        return new Response(data, { headers: { ...cors, 'Content-Type': 'application/json' } });
+      } catch (e) {
+        // Fallback to last known version if GitHub unreachable
+        return new Response(JSON.stringify({
+          version_code: 16,
+          version: "1.0.16",
+          apk_url: "https://1232131.xyz/indolearn/app.apk",
+          changelog: "v1.0.16: 词根词缀分析+联想记忆升级；设置页简化（无需配置 Gemini Key）"
+        }, null, 2), { headers: { ...cors, 'Content-Type': 'application/json' } });
+      }
     }
 
     if (path === '/indolearn/app.apk') {
-      const apkUrl = 'https://github.com/Haydendddda/indolearn-android/releases/download/v1.0.15/IndoLearn-v1.0.16.apk';
+      // Read version dynamically from GitHub — no Worker redeploy needed on version bumps
       try {
+        const vResp = await fetch('https://raw.githubusercontent.com/Haydendddda/indolearn-android/main/version.json');
+        const vData = await vResp.json();
+        const version = vData.version;
+        const apkUrl = `https://github.com/Haydendddda/indolearn-android/releases/download/v${version}/IndoLearn-v${version}.apk`;
         const resp = await fetch(apkUrl, { redirect: 'follow' });
         if (!resp.ok) return new Response('APK fetch failed: ' + resp.status, { status: 502 });
         return new Response(resp.body, {
           headers: {
             'Content-Type': 'application/vnd.android.package-archive',
-            'Content-Disposition': 'attachment; filename="IndoLearn-v1.0.16.apk"',
+            'Content-Disposition': `attachment; filename="IndoLearn-v${version}.apk"`,
             'Access-Control-Allow-Origin': '*',
-            'Cache-Control': 'public, max-age=86400'
+            'Cache-Control': 'no-cache'
           }
         });
       } catch (e) { return new Response('APK error: ' + e.message, { status: 502 }); }
