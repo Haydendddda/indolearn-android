@@ -15,6 +15,7 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.speech.tts.TextToSpeech
 import android.webkit.*
+import android.app.AlertDialog
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -53,6 +54,10 @@ class MainActivity : AppCompatActivity() {
     // Native TTS — much more reliable than WebView speechSynthesis for Indonesian
     private var tts: TextToSpeech? = null
     private var ttsReady = false
+
+    // Track which update version the user already dismissed — avoid re-prompting each launch
+    private var dismissedUpdateVersion = ""
+    private var isDownloadInProgress = false
 
     // File chooser callback for <input type="file"> in WebView
     private var fileChooserCallback: ValueCallback<Array<Uri>>? = null
@@ -108,6 +113,27 @@ class MainActivity : AppCompatActivity() {
 
         webView.webChromeClient = object : WebChromeClient() {
             override fun onConsoleMessage(m: ConsoleMessage): Boolean = true
+
+            // Show native Android confirm dialog for window.confirm() — without this,
+            // WebView silently returns false (or true on some ROMs), causing random auto-downloads
+            override fun onJsConfirm(view: WebView, url: String, message: String, result: JsResult): Boolean {
+                AlertDialog.Builder(this@MainActivity)
+                    .setMessage(message)
+                    .setPositiveButton("确认") { _, _ -> result.confirm() }
+                    .setNegativeButton("取消") { _, _ -> result.cancel() }
+                    .setOnCancelListener { result.cancel() }
+                    .show()
+                return true
+            }
+
+            override fun onJsAlert(view: WebView, url: String, message: String, result: JsResult): Boolean {
+                AlertDialog.Builder(this@MainActivity)
+                    .setMessage(message)
+                    .setPositiveButton("确定") { _, _ -> result.confirm() }
+                    .setOnCancelListener { result.confirm() }
+                    .show()
+                return true
+            }
 
             // Required for <input type="file"> to open the system file picker in WebView
             override fun onShowFileChooser(
@@ -280,6 +306,8 @@ class MainActivity : AppCompatActivity() {
                     val apkUrl = json.getString("apk_url")
                     val changelog = json.optString("changelog", "").replace("'", "\\'")
                     if (latestCode > BuildConfig.VERSION_CODE) {
+                        // Skip if user already dismissed this exact version or download in progress
+                        if (latestName == dismissedUpdateVersion || isDownloadInProgress) return@thread
                         runOnUiThread {
                             webView.evaluateJavascript(
                                 "onUpdateAvailable('$latestName','$apkUrl','$changelog')", null)
@@ -295,6 +323,8 @@ class MainActivity : AppCompatActivity() {
          */
         @JavascriptInterface
         fun downloadUpdate(apkUrl: String, version: String) {
+            if (isDownloadInProgress) return  // prevent duplicate downloads
+            isDownloadInProgress = true
             runOnUiThread {
                 Toast.makeText(this@MainActivity, "正在后台下载 v$version...", Toast.LENGTH_SHORT).show()
             }
@@ -321,6 +351,7 @@ class MainActivity : AppCompatActivity() {
                                 "下载完成，请在通知栏点击安装", Toast.LENGTH_LONG).show()
                         }
                     }
+                    isDownloadInProgress = false
                     try { unregisterReceiver(this) } catch (_: Exception) {}
                 }
             }
@@ -330,6 +361,14 @@ class MainActivity : AppCompatActivity() {
                 IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
                 ContextCompat.RECEIVER_EXPORTED
             )
+        }
+
+        /**
+         * Called from JS when the user dismisses an update prompt — prevents re-prompting same version.
+         */
+        @JavascriptInterface
+        fun dismissUpdate(version: String) {
+            dismissedUpdateVersion = version
         }
 
         /**

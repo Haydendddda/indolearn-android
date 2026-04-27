@@ -1,6 +1,6 @@
 {
-  "version_code": 17,
-  "version": "1.0.17",
+  "version_code": 18,
+  "version": "1.0.18",
   "apk_url": "https://1232131.xyz/indolearn/app.apk",
-  "changelog": "v1.0.17: 词根分析简洁化+纯中文；只提取单词不提取词组；详情面板移到卡片下方可滚动"
+  "changelog": "v1.0.18: 修复自动更新反复下载问题；弹窗改为原生对话框；已拒绝的版本本次不再提示"
 }

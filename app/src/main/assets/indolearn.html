@@ -898,11 +898,14 @@ async function autoImportAllEmails() {
 // Called by Android when a newer version_code is detected in version.json
 function onUpdateAvailable(version, apkUrl, changelog) {
   const msg = changelog
-    ? `发现新版本 v${version}\n${changelog}\n\n是否立即下载安装？`
-    : `发现新版本 v${version}，是否立即下载安装？`;
+    ? `发现新版本 v${version}\n\n${changelog}\n\n立即下载安装？`
+    : `发现新版本 v${version}，立即下载安装？`;
   if (confirm(msg)) {
     window.AndroidBridge?.downloadUpdate(apkUrl, version);
     toast('正在后台下载，完成后会弹出安装提示 ⬇️');
+  } else {
+    // Tell native layer to skip this version until next session
+    window.AndroidBridge?.dismissUpdate(version);
   }
 }
 
