@@ -1,6 +1,6 @@
 {
-  "version_code": 16,
-  "version": "1.0.16",
+  "version_code": 17,
+  "version": "1.0.17",
   "apk_url": "https://1232131.xyz/indolearn/app.apk",
-  "changelog": "v1.0.16: 词根词缀分析+联想记忆升级；设置页简化（无需配置 Gemini Key）"
+  "changelog": "v1.0.17: 词根分析简洁化+纯中文；只提取单词不提取词组；详情面板移到卡片下方可滚动"
 }

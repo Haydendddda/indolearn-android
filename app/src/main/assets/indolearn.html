@@ -613,36 +613,39 @@ async function extractVocab(fromGmail=false) {
   try {
     const prompt = `你是帮助零基础中文母语者学习印尼语的词汇提取专家。分析以下文本，提取 8-15 个有价值的词汇。
 
-【输出字段要求】
-1. "chinese"：★必须是中文汉字★，2-6字。绝对不允许出现英文字母。
-2. "english"：英文释义，用于图片搜索。
-3. "pronunciation"：用连字符分音节，大写重读音节，例如：du-RA-si、be-LA-jar。
-4. "sourceLang"：原文语言，填 Chinese、English 或 Indonesian。
-5. "related"：2-4 个同词根的印尼语变化形式，若无则填 []。
-6. "rootInfo"：★全部用中文★分析词根词缀。印尼语有系统性构词法，请务必分析：
-   - 若有前缀（me-/ber-/ter-/di-/ke-/pe-/se- 等）：说明「前缀+词根」的含义，如「me- 表示主动动作，kerja=工作 → mekerja=工作（主动）」
-   - 若有后缀（-an/-kan/-i/-nya 等）：说明后缀作用，如「-an 将动词变名词，makan→makanan=食物」
-   - 若有环缀（ke-an/pe-an 等）：整体说明
-   - 若是借词（来自荷兰语/英语/梵文/阿拉伯语/汉语）：标注来源，如「来自荷兰语 kantoor（办公室）」
-   - 若是纯词根无特殊构词：写「基础词根，无前后缀」
-7. "mnemonic"：★全部用中文★写有画面感的联想记忆法。要求：
-   - 优先用词根/词义联想（不是谐音），让人理解这个词"为什么是这个意思"
-   - 可以结合视觉画面、场景故事、逻辑推导
-   - 如果有来自英语/中文的同源词，明确指出
-   - 避免纯粹的汉字谐音拼凑，要有实质意义
+【重要限制】
+- ★只提取单个词语★，不提取词组或短语。例如：只收录「合作」或「完成」，不收录「合作完成」
+- 如果原文是中文，找到对应的印尼语单词
+- 每个词必须是独立的印尼语单词（kata tunggal 或带有固定词缀的单词形式）
+
+【字段要求】
+1. "chinese"：中文汉字释义，2-5字，★绝对不能有英文字母★
+2. "english"：英文释义（用于图片搜索）
+3. "pronunciation"：分音节+大写重读，如：be-LA-jar、ma-KAN-an
+4. "sourceLang"：Chinese / English / Indonesian
+5. "related"：1-3个同词根变化形式，若无填 []
+6. "rootInfo"：★必须全部用中文★，一句话说清楚词根构成，格式参考：
+   - 有前缀：「pe-an + sambut（迎接）→ 名词化：接待」
+   - 有后缀：「makan（吃）+ -an → 食物（名词后缀）」
+   - 借词：「来自荷兰语 kantoor → 办公室」
+   - 来自英语：「来自英语 sistem → 系统」
+   - 纯词根：「基础词根，无词缀」
+   ★严禁出现任何印尼语句子或解释★，只能有中文
+7. "mnemonic"：全中文，1-2句有画面感的联想（不是谐音），解释「为什么这个词是这个意思」
+   例：「sambut 像在欢迎客人时伸出双臂的动作，pe-an 把它变成名词 → 接待、欢迎仪式」
 
 只返回合法 JSON 数组，不要 markdown 代码块：
 [{
   "sourceWord": "原文中的词",
   "sourceLang": "Chinese/English/Indonesian",
   "indonesian": "印尼语单词",
-  "pronunciation": "音节发音（必填）",
-  "chinese": "中文释义（必须是汉字）",
+  "pronunciation": "分音节发音",
+  "chinese": "中文释义",
   "english": "English meaning",
   "emoji": "单个emoji",
-  "rootInfo": "词根词缀+语源分析（全中文）",
-  "mnemonic": "画面感联想记忆（全中文）",
-  "related": ["词根变体1","词根变体2"],
+  "rootInfo": "一句话词根分析（全中文）",
+  "mnemonic": "联想记忆（全中文，1-2句）",
+  "related": ["变体1","变体2"],
   "topic": "Bisnis/Teknologi/Kehidupan/Makanan/Perjalanan/Kesehatan/Pendidikan/Lainnya"
 }]
 
@@ -1070,14 +1073,27 @@ function renderCard() {
               ${w.sourceWord&&w.sourceLang==='Chinese'?`<div><div class="fc-sec-lbl">原文</div><div class="fc-sec-txt" style="font-size:15px;color:var(--text2)">${esc(w.sourceWord)}</div></div>`:''}
             </div>
           </div>
-          ${w.rootInfo?`<div class="fc-sec"><div class="fc-sec-lbl">🔤 词根词缀</div><div class="fc-sec-txt" style="line-height:1.6">${esc(w.rootInfo)}</div></div>`:''}
-          ${w.mnemonic?`<div class="fc-sec"><div class="fc-sec-lbl">💡 联想记忆</div><div class="fc-sec-txt" style="line-height:1.6">${esc(w.mnemonic)}</div></div>`:''}
-          ${relatedHtml}
         </div>
       </div>
     </div>
 
     <div class="swipe-hint" id="swipe-hint">← 左滑不会 &nbsp;|&nbsp; 右滑记得 →</div>
+    <div id="card-details" style="display:none;margin-top:4px;border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:0 2px 12px rgba(0,0,0,.08)">
+      ${(w.rootInfo||w.mnemonic||relatedHtml)?`
+        ${w.rootInfo?`<div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:4px">🔤 词根词缀</div>
+          <div style="font-size:14px;color:var(--text);line-height:1.7">${esc(w.rootInfo)}</div>
+        </div>`:''}
+        ${w.mnemonic?`<div style="padding:12px 16px;${w.related?.length?'border-bottom:1px solid var(--border)':''}">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:4px">💡 联想记忆</div>
+          <div style="font-size:14px;color:var(--text);line-height:1.7">${esc(w.mnemonic)}</div>
+        </div>`:''}
+        ${relatedHtml?`<div style="padding:12px 16px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:6px">🌿 同根词</div>
+          <div>${w.related?.map(r=>`<span class="root-tag">${esc(r)}</span>`).join('')}</div>
+        </div>`:''}
+      `:''}
+    </div>
     <div class="rating-btns" id="rbtns" style="display:none">
       <button class="rb rb-again" onclick="rate(0)"><span>🔴</span>不会</button>
       <button class="rb rb-hard"  onclick="rate(1)"><span>🟡</span>难</button>
@@ -1155,9 +1171,11 @@ function flip() {
   const rb = document.getElementById('rbtns');
   const fh = document.getElementById('flip-hint');
   const sh = document.getElementById('swipe-hint');
+  const cd = document.getElementById('card-details');
   if (rb) rb.style.display='grid';
   if (fh) fh.style.display='none';
   if (sh) sh.style.display='none';
+  if (cd) cd.style.display='block';
   const w = queue[qIdx];
   if (w?.indonesian) setTimeout(()=>speak(w.indonesian), 550);
 }

@@ -14,8 +14,8 @@ android {
         applicationId = "com.indolearn.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 16
-        versionName = "1.0.16"
+        versionCode = 17
+        versionName = "1.0.17"
     }
 
     buildFeatures {
