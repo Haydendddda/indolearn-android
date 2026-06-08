@@ -22,10 +22,10 @@ export default {
       } catch (e) {
         // Fallback to last known version if GitHub unreachable
         return new Response(JSON.stringify({
-          version_code: 16,
-          version: "1.0.16",
+          version_code: 19,
+          version: "1.0.19",
           apk_url: "https://1232131.xyz/indolearn/app.apk",
-          changelog: "v1.0.16: 词根词缀分析+联想记忆升级；设置页简化（无需配置 Gemini Key）"
+          changelog: "v1.0.19: AI分析改走服务端代理，无需配置API Key，开箱即用"
         }, null, 2), { headers: { ...cors, 'Content-Type': 'application/json' } });
       }
     }
@@ -102,8 +102,9 @@ export default {
           <div>
             <h1 class="app-name">IndoLearn</h1>
             <p class="app-tagline">AI 驱动的印尼语词汇学习 Android 应用</p>
-            <span class="badge">v1.0.16</span>
+            <span class="badge">v1.0.19</span>
             <span class="badge badge-green">免费开源</span>
+            <span class="badge badge-green">无需 API Key</span>
           </div>
         </div>
 
@@ -140,8 +141,8 @@ export default {
           </div>
           <div class="feature-card">
             <div class="feature-icon">🤖</div>
-            <h3>Gemini AI 支持</h3>
-            <p>接入 Google Gemini API，智能分析词汇语境和用法</p>
+            <h3>AI 开箱即用</h3>
+            <p>AI 分析走服务端代理，无需配置 API Key，安装即可使用</p>
           </div>
         </div>
 
@@ -149,7 +150,7 @@ export default {
           <h2>⬇️ 下载安装</h2>
           <p style="color:var(--text2);margin-bottom:20px">支持 Android 7.0+，需要开启「允许安装未知来源应用」</p>
           <div class="download-btns">
-            <a class="btn-dl btn-primary-dl" href="/indolearn/app.apk">⬇️ 下载 APK（v1.0.16）</a>
+            <a class="btn-dl btn-primary-dl" href="/indolearn/app.apk">⬇️ 下载 APK（v1.0.19）</a>
             <a class="btn-dl btn-ghost-dl" href="https://github.com/Haydendddda/indolearn-android/releases" target="_blank">📦 GitHub Releases</a>
           </div>
           <p style="font-size:12px;color:var(--text2);margin-top:14px">APK 经过 Cloudflare 代理，国内网络可直接下载</p>
@@ -165,10 +166,22 @@ export default {
           <div style="display:flex;flex-direction:column;gap:12px">
             <div style="border-left:3px solid var(--accent);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-                <span class="badge" style="margin:0">v1.0.16</span>
+                <span class="badge" style="margin:0">v1.0.19</span>
                 <span style="font-size:12px;color:var(--text2)">最新版本</span>
               </div>
-              <p style="margin:0;font-size:14px;color:var(--text)">词根词缀分析 + 联想记忆全面升级；设置页简化，无需配置 Gemini Key</p>
+              <p style="margin:0;font-size:14px;color:var(--text)">AI 分析改走服务端代理，无需配置 API Key，安装即用；开箱即用体验全面升级</p>
+            </div>
+            <div style="border-left:3px solid var(--border);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
+              <div style="margin-bottom:4px"><span class="badge" style="margin:0">v1.0.18</span></div>
+              <p style="margin:0;font-size:14px;color:var(--text2)">修复 Google Drive 云同步稳定性；优化 WebView 内存占用</p>
+            </div>
+            <div style="border-left:3px solid var(--border);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
+              <div style="margin-bottom:4px"><span class="badge" style="margin:0">v1.0.17</span></div>
+              <p style="margin:0;font-size:14px;color:var(--text2)">新增应用内自动更新提示；完善词汇卡片翻转动画</p>
+            </div>
+            <div style="border-left:3px solid var(--border);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
+              <div style="margin-bottom:4px"><span class="badge" style="margin:0">v1.0.16</span></div>
+              <p style="margin:0;font-size:14px;color:var(--text2)">词根词缀分析 + 联想记忆全面升级；设置页简化，无需配置 Gemini Key</p>
             </div>
             <div style="border-left:3px solid var(--border);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
               <div style="margin-bottom:4px"><span class="badge" style="margin:0">v1.0.15</span></div>
@@ -224,12 +237,13 @@ export default {
             <div class="card-icon">🇮🇩</div>
             <div class="card-body">
               <div class="card-name">IndoLearn</div>
-              <div class="card-desc">AI 驱动的印尼语词汇学习 Android 应用，从 Gmail / PDF 自动提取生词，配合间隔重复算法高效记忆</div>
+              <div class="card-desc">AI 驱动的印尼语词汇学习 Android 应用，从 Gmail / PDF 自动提取生词，配合间隔重复算法高效记忆。AI 分析开箱即用，无需配置 API Key。</div>
               <div class="card-tags">
                 <span class="tag">Android</span>
                 <span class="tag">AI</span>
                 <span class="tag">Kotlin</span>
                 <span class="tag">印尼语</span>
+                <span class="tag">无需 API Key</span>
               </div>
             </div>
             <div class="card-arrow">→</div>
