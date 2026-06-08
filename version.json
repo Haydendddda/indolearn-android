@@ -1,6 +1,6 @@
 {
-  "version_code": 18,
-  "version": "1.0.18",
+  "version_code": 19,
+  "version": "1.0.19",
   "apk_url": "https://1232131.xyz/indolearn/app.apk",
-  "changelog": "v1.0.18: 修复自动更新反复下载问题；弹窗改为原生对话框；已拒绝的版本本次不再提示"
+  "changelog": "v1.0.19: AI分析改走服务端代理，无需配置API Key，开箱即用"
 }
