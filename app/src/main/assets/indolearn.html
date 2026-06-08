@@ -6,8 +6,6 @@
 <title>IndoLearn v2 — 智能印尼语学习</title>
 <!-- GIS OAuth handled by Android bridge -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 /* ── TOKENS ─────────────────────────────────────────── */
 :root {
@@ -260,16 +258,16 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
       </div>
     </div>
 
-    <!-- FILE UPLOAD -->
+    <!-- PDF -->
     <div class="ipanel" id="ip-pdf">
       <div class="upload-zone" id="pdf-zone" onclick="document.getElementById('pdf-input').click()"
         ondragover="event.preventDefault();this.classList.add('drag-over')"
         ondragleave="this.classList.remove('drag-over')"
-        ondrop="handleFileDrop(event)">
-        <input type="file" id="pdf-input" accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.txt" onchange="handleAnyFile(this.files[0])">
-        <div style="font-size:40px;margin-bottom:8px">📂</div>
-        <div style="font-size:14px;font-weight:600;margin-bottom:4px">点击或拖拽文件</div>
-        <div style="font-size:12px;color:var(--text3)">支持 PDF · Word · Excel · CSV · TXT · 自动提取文字后 AI 分析</div>
+        ondrop="handlePdfDrop(event)">
+        <input type="file" id="pdf-input" accept=".pdf" onchange="handlePdfFile(this.files[0])">
+        <div style="font-size:40px;margin-bottom:8px">📄</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px">点击或拖拽 PDF 文件</div>
+        <div style="font-size:12px;color:var(--text3)">自动提取文字后送入 AI 分析</div>
       </div>
       <div id="pdf-progress" style="font-size:12px;color:var(--text2);margin-top:8px;display:none"></div>
     </div>
@@ -312,46 +310,17 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 <!-- STATS -->
 <div class="view" id="v-stats">
 <div class="container">
-  <!-- Level card -->
-  <div class="card" style="text-align:center;padding:20px 16px 16px">
-    <div id="s-level-badge" style="font-size:44px;margin-bottom:6px">🌱</div>
-    <div id="s-level-name" style="font-size:19px;font-weight:700;color:var(--text);margin-bottom:3px">初学者</div>
-    <div id="s-level-sub" style="font-size:12px;color:var(--text2);margin-bottom:14px">继续加油！</div>
-    <div style="background:var(--surface2);border-radius:10px;height:10px;overflow:hidden;margin:0 4px">
-      <div id="s-prog-bar" style="height:100%;background:linear-gradient(90deg,var(--blue),var(--accent2));border-radius:10px;transition:width .7s ease;width:0%"></div>
-    </div>
-    <div style="font-size:12px;color:var(--text2);margin-top:7px">
-      <span id="s-mastered2">0</span> / <span id="s-total2">0</span> 词已掌握（<span id="s-pct">0</span>%）
-    </div>
+  <div class="stats-grid">
+    <div class="stat-box"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">总词汇</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-mastered">0</div><div class="stat-lbl">已掌握</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-streak">0</div><div class="stat-lbl">连续天数</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-due">0</div><div class="stat-lbl">今日待复习</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-sessions">0</div><div class="stat-lbl">学习次数</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-acc">—</div><div class="stat-lbl">正确率</div></div>
   </div>
-  <!-- Stats grid -->
-  <div class="stats-grid" style="margin-top:0">
-    <div class="stat-box"><div class="stat-num" id="s-streak">0</div><div class="stat-lbl">🔥 连续天</div></div>
-    <div class="stat-box"><div class="stat-num" id="s-acc">—</div><div class="stat-lbl">🎯 正确率</div></div>
-    <div class="stat-box"><div class="stat-num" id="s-due">0</div><div class="stat-lbl">📅 今日待复习</div></div>
-    <div class="stat-box"><div class="stat-num" id="s-today">0</div><div class="stat-lbl">✅ 今日已复习</div></div>
-    <div class="stat-box"><div class="stat-num" id="s-sessions">0</div><div class="stat-lbl">📖 学习次数</div></div>
-    <div class="stat-box"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">📚 总词汇</div></div>
-  </div>
-  <!-- 7-day heatmap -->
-  <div class="card">
-    <div class="card-title">📆 近7天复习活动</div>
-    <div id="s-heatmap" style="display:flex;gap:6px;justify-content:space-between;padding:4px 0"></div>
-  </div>
-  <!-- Hardest words -->
-  <div class="card">
-    <div class="card-title">💪 需要加强练习</div>
-    <div id="s-hard"></div>
-  </div>
-  <!-- Topic distribution -->
   <div class="card">
     <div class="card-title">📊 主题分布</div>
     <div id="chart"></div>
-  </div>
-  <!-- Next review -->
-  <div class="card" id="s-next-card" style="display:none">
-    <div class="card-title">⏰ 下次复习</div>
-    <div id="s-next"></div>
   </div>
 </div>
 </div>
@@ -360,13 +329,18 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 <div class="view" id="v-setup">
 <div class="container">
   <div class="card">
-    <div class="card-title">🔑 Google 账户配置</div>
+    <div class="card-title">🔑 API 配置</div>
     <div class="field">
-      <label>Google OAuth Client ID</label>
+      <label>Google OAuth Client ID（Gmail 连接 + 云端同步用）</label>
       <input type="text" id="cfg-gid" placeholder="xxx.apps.googleusercontent.com">
-      <div class="hint">用于连接 Gmail 和 Google Drive · Google Cloud Console → 凭据 → OAuth 2.0 客户端 ID</div>
+      <div class="hint">Google Cloud Console → 凭据 → OAuth 2.0 客户端 ID</div>
     </div>
-    <button class="btn btn-primary btn-block" onclick="saveSettings()">💾 保存</button>
+    <div class="field">
+      <label>自动更新地址（选填）</label>
+      <input type="text" id="cfg-update-url" placeholder="https://yourdomain.com/indolearn/version.json">
+      <div class="hint">填入后 App 每次启动自动检查新版本。JSON 格式：<code>{"version_code":5,"version":"1.0.5","apk_url":"...","changelog":"..."}</code></div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="saveSettings()">💾 保存设置</button>
     <button class="btn btn-ghost btn-block" style="margin-top:8px" onclick="manualCheckUpdate()">🔄 立即检查更新</button>
   </div>
 
@@ -410,8 +384,6 @@ let touchStartX = 0, touchDeltaX = 0, touchActive = false;
 // ── STORAGE ────────────────────────────────────────────
 function load() {
   try { const r = localStorage.getItem(KEY); if (r) db = {...db, ...JSON.parse(r)}; } catch(e) {}
-  // Hardcoded defaults — never need manual setup
-  if (!db.settings.updateUrl) db.settings.updateUrl = 'https://1232131.xyz/indolearn/version.json';
 }
 function save() { localStorage.setItem(KEY, JSON.stringify(db)); }
 
@@ -433,10 +405,12 @@ function applyDarkMode() {
 // ── SETTINGS ───────────────────────────────────────────
 function saveSettings() {
   db.settings.googleClientId = document.getElementById('cfg-gid').value.trim();
+  db.settings.updateUrl = document.getElementById('cfg-update-url').value.trim();
   save(); toast('设置已保存 ✓');
 }
 function loadSettingsUI() {
   document.getElementById('cfg-gid').value = db.settings.googleClientId || '';
+  document.getElementById('cfg-update-url').value = db.settings.updateUrl || '';
 }
 function manualCheckUpdate() {
   const url = db.settings.updateUrl;
@@ -571,28 +545,16 @@ async function wikiImg(word) {
 }
 
 // ── GEMINI ─────────────────────────────────────────────
-// Calls Cloudflare Worker proxy — API key stored server-side, not in APK
-const GEMINI_PROXY = 'https://1232131.xyz/gemini';
+const PROXY_URL = 'https://frosty-pond-3507.haichen940607.workers.dev/gemini';
 async function gemini(prompt) {
-  // Fallback: if user has their own key set, use it directly
-  const key = db.settings.geminiKey;
-  let r;
-  if (key) {
-    const GURL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
-    r = await fetch(`${GURL}?key=${key}`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({contents:[{parts:[{text:prompt}]}], generationConfig:{temperature:0.4}})
-    });
-  } else {
-    // Use shared proxy
-    r = await fetch(GEMINI_PROXY, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({prompt})
-    });
-  }
+  const r = await fetch(PROXY_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({prompt})
+  });
   const d = await r.json();
-  if (!r.ok) throw new Error(d?.error?.message || `HTTP ${r.status}`);
-  return d?.candidates?.[0]?.content?.parts?.[0]?.text || d?.text || '';
+  if (!r.ok) throw new Error(d?.error?.message || d?.error || `HTTP ${r.status}`);
+  return d?.text || d?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
 // ── EXTRACT VOCAB ──────────────────────────────────────
@@ -604,48 +566,33 @@ function getInputText() {
 async function extractVocab(fromGmail=false) {
   const text = fromGmail ? document.getElementById('input-text').value.trim() : getInputText();
   if (!text) { setStatus('import','请先输入文本','error'); return; }
-  // Gemini key no longer required — proxy handles it
 
   const btn = document.getElementById('extract-btn');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> 正在分析...';
   setStatus('import','⏳ AI 正在提取词汇...','info');
 
   try {
-    const prompt = `你是帮助零基础中文母语者学习印尼语的词汇提取专家。分析以下文本，提取 8-15 个有价值的词汇。
+    const prompt = `你是帮助中文母语者学习印尼语的词汇提取助手。分析以下文本，提取 8-15 个有价值的词汇。
 
-【重要限制】
-- ★只提取单个词语★，不提取词组或短语。例如：只收录「合作」或「完成」，不收录「合作完成」
-- 如果原文是中文，找到对应的印尼语单词
-- 每个词必须是独立的印尼语单词（kata tunggal 或带有固定词缀的单词形式）
-
-【字段要求】
-1. "chinese"：中文汉字释义，2-5字，★绝对不能有英文字母★
-2. "english"：英文释义（用于图片搜索）
-3. "pronunciation"：分音节+大写重读，如：be-LA-jar、ma-KAN-an
-4. "sourceLang"：Chinese / English / Indonesian
-5. "related"：1-3个同词根变化形式，若无填 []
-6. "rootInfo"：★必须全部用中文★，一句话说清楚词根构成，格式参考：
-   - 有前缀：「pe-an + sambut（迎接）→ 名词化：接待」
-   - 有后缀：「makan（吃）+ -an → 食物（名词后缀）」
-   - 借词：「来自荷兰语 kantoor → 办公室」
-   - 来自英语：「来自英语 sistem → 系统」
-   - 纯词根：「基础词根，无词缀」
-   ★严禁出现任何印尼语句子或解释★，只能有中文
-7. "mnemonic"：全中文，1-2句有画面感的联想（不是谐音），解释「为什么这个词是这个意思」
-   例：「sambut 像在欢迎客人时伸出双臂的动作，pe-an 把它变成名词 → 接待、欢迎仪式」
+输出要求（每个字段都必须满足）：
+1. "chinese"：★必须是中文汉字★，2-6字，例如「时长」「持续时间」「仓库」「会议」。绝对不允许出现英文字母。
+2. "english"：英文释义，用于图片搜索，例如 "duration"、"repository"。
+3. "mnemonic"：★必须全部用中文★写记忆技巧。可以提及印尼语发音与英文/中文的相似性。不允许出现英文句子。
+4. "pronunciation"：用连字符分音节，大写重读音节，例如：du-RA-si、be-LA-jar。
+5. "sourceLang"：原文语言，填 Chinese、English 或 Indonesian。
+6. "related"：2-4 个同词根的印尼语变化形式，例如 ["bekerja","pekerjaan","pekerja"]。若无明显词根变化则填 []。
 
 只返回合法 JSON 数组，不要 markdown 代码块：
 [{
   "sourceWord": "原文中的词",
   "sourceLang": "Chinese/English/Indonesian",
   "indonesian": "印尼语单词",
-  "pronunciation": "分音节发音",
-  "chinese": "中文释义",
+  "pronunciation": "音节发音（必填）",
+  "chinese": "中文释义（必须是汉字）",
   "english": "English meaning",
   "emoji": "单个emoji",
-  "rootInfo": "一句话词根分析（全中文）",
-  "mnemonic": "联想记忆（全中文，1-2句）",
-  "related": ["变体1","变体2"],
+  "mnemonic": "中文记忆技巧",
+  "related": ["词根变体1","词根变体2"],
   "topic": "Bisnis/Teknologi/Kehidupan/Makanan/Perjalanan/Kesehatan/Pendidikan/Lainnya"
 }]
 
@@ -692,89 +639,34 @@ async function fetchImagesBackground(words) {
   }
 }
 
-// ── FILE IMPORT (PDF / DOCX / XLSX / CSV / TXT) ──────────────────────────────
-function handleFileDrop(event) {
+// ── PDF IMPORT ─────────────────────────────────────────
+function handlePdfDrop(event) {
   event.preventDefault();
   document.getElementById('pdf-zone').classList.remove('drag-over');
   const file = event.dataTransfer.files[0];
-  if (file) handleAnyFile(file);
+  if (file?.type === 'application/pdf') handlePdfFile(file);
 }
 
-// Legacy alias kept in case called elsewhere
-function handlePdfFile(file) { handleAnyFile(file); }
-
-async function handleAnyFile(file) {
+async function handlePdfFile(file) {
   if (!file) return;
   const prog = document.getElementById('pdf-progress');
   prog.style.display = 'block';
-  prog.textContent = `📂 正在解析 ${file.name}...`;
-
-  const name = file.name.toLowerCase();
+  prog.textContent = `📄 正在解析 ${file.name}...`;
   try {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data: buf}).promise;
     let text = '';
-
-    if (name.endsWith('.pdf')) {
-      // ── PDF ──
-      const buf = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({data: buf}).promise;
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        text += content.items.map(item => item.str).join(' ') + '\n';
-        prog.textContent = `📄 解析中... ${i}/${pdf.numPages} 页`;
-      }
-      prog.textContent = `✅ PDF 解析完成，${pdf.numPages} 页，${text.length} 字符`;
-
-    } else if (name.endsWith('.docx') || name.endsWith('.doc')) {
-      // ── Word ──
-      prog.textContent = '📝 正在解析 Word 文档...';
-      const buf = await file.arrayBuffer();
-      const result = await mammoth.extractRawText({arrayBuffer: buf});
-      text = result.value;
-      prog.textContent = `✅ Word 解析完成，${text.length} 字符`;
-
-    } else if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
-      // ── Excel ──
-      prog.textContent = '📊 正在解析 Excel 文件...';
-      const buf = await file.arrayBuffer();
-      const wb = XLSX.read(buf, {type: 'array'});
-      const lines = [];
-      for (const sheetName of wb.SheetNames) {
-        const ws = wb.Sheets[sheetName];
-        const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
-        lines.push(`--- ${sheetName} ---`);
-        for (const row of rows) {
-          const line = row.filter(c => c !== '').join('\t');
-          if (line) lines.push(line);
-        }
-      }
-      text = lines.join('\n');
-      prog.textContent = `✅ Excel 解析完成，${wb.SheetNames.length} 个工作表，${text.length} 字符`;
-
-    } else if (name.endsWith('.csv')) {
-      // ── CSV ──
-      prog.textContent = '📊 正在读取 CSV...';
-      text = await file.text();
-      // Convert CSV rows to tab-separated for readability
-      text = text.split('\n').map(r => r.replace(/,/g, '\t')).join('\n');
-      prog.textContent = `✅ CSV 读取完成，${text.length} 字符`;
-
-    } else if (name.endsWith('.txt')) {
-      // ── TXT ──
-      prog.textContent = '📄 正在读取文本...';
-      text = await file.text();
-      prog.textContent = `✅ 文本读取完成，${text.length} 字符`;
-
-    } else {
-      prog.textContent = '❌ 不支持的文件格式（支持 PDF、Word、Excel、CSV、TXT）';
-      return;
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(item => item.str).join(' ') + '\n';
+      prog.textContent = `📄 解析中... ${i}/${pdf.numPages} 页`;
     }
-
-    if (!text.trim()) { prog.textContent = '❌ 未能提取到文字内容'; return; }
-    document.getElementById('input-text').value = text.substring(0, 5000);
+    prog.textContent = `✅ 解析完成，共 ${pdf.numPages} 页，${text.length} 字符`;
+    // Switch to text tab and fill
+    document.getElementById('input-text').value = text.substring(0, 4000);
     switchImportTab('text', document.querySelectorAll('.itab')[0]);
-    toast('文件解析完成，点击「提取词汇」开始分析 ✓');
-
+    toast('PDF 解析完成，点击「提取词汇」开始分析');
   } catch(e) {
     prog.textContent = `❌ 解析失败: ${e.message}`;
   }
@@ -898,14 +790,11 @@ async function autoImportAllEmails() {
 // Called by Android when a newer version_code is detected in version.json
 function onUpdateAvailable(version, apkUrl, changelog) {
   const msg = changelog
-    ? `发现新版本 v${version}\n\n${changelog}\n\n立即下载安装？`
-    : `发现新版本 v${version}，立即下载安装？`;
+    ? `发现新版本 v${version}\n${changelog}\n\n是否立即下载安装？`
+    : `发现新版本 v${version}，是否立即下载安装？`;
   if (confirm(msg)) {
     window.AndroidBridge?.downloadUpdate(apkUrl, version);
     toast('正在后台下载，完成后会弹出安装提示 ⬇️');
-  } else {
-    // Tell native layer to skip this version until next session
-    window.AndroidBridge?.dismissUpdate(version);
   }
 }
 
@@ -1076,27 +965,13 @@ function renderCard() {
               ${w.sourceWord&&w.sourceLang==='Chinese'?`<div><div class="fc-sec-lbl">原文</div><div class="fc-sec-txt" style="font-size:15px;color:var(--text2)">${esc(w.sourceWord)}</div></div>`:''}
             </div>
           </div>
+          ${w.mnemonic?`<div class="fc-sec"><div class="fc-sec-lbl">💡 记忆技巧</div><div class="fc-sec-txt">${esc(w.mnemonic)}</div></div>`:''}
+          ${relatedHtml}
         </div>
       </div>
     </div>
 
     <div class="swipe-hint" id="swipe-hint">← 左滑不会 &nbsp;|&nbsp; 右滑记得 →</div>
-    <div id="card-details" style="display:none;margin-top:4px;border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:0 2px 12px rgba(0,0,0,.08)">
-      ${(w.rootInfo||w.mnemonic||relatedHtml)?`
-        ${w.rootInfo?`<div style="padding:12px 16px;border-bottom:1px solid var(--border)">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:4px">🔤 词根词缀</div>
-          <div style="font-size:14px;color:var(--text);line-height:1.7">${esc(w.rootInfo)}</div>
-        </div>`:''}
-        ${w.mnemonic?`<div style="padding:12px 16px;${w.related?.length?'border-bottom:1px solid var(--border)':''}">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:4px">💡 联想记忆</div>
-          <div style="font-size:14px;color:var(--text);line-height:1.7">${esc(w.mnemonic)}</div>
-        </div>`:''}
-        ${relatedHtml?`<div style="padding:12px 16px">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:6px">🌿 同根词</div>
-          <div>${w.related?.map(r=>`<span class="root-tag">${esc(r)}</span>`).join('')}</div>
-        </div>`:''}
-      `:''}
-    </div>
     <div class="rating-btns" id="rbtns" style="display:none">
       <button class="rb rb-again" onclick="rate(0)"><span>🔴</span>不会</button>
       <button class="rb rb-hard"  onclick="rate(1)"><span>🟡</span>难</button>
@@ -1174,11 +1049,9 @@ function flip() {
   const rb = document.getElementById('rbtns');
   const fh = document.getElementById('flip-hint');
   const sh = document.getElementById('swipe-hint');
-  const cd = document.getElementById('card-details');
   if (rb) rb.style.display='grid';
   if (fh) fh.style.display='none';
   if (sh) sh.style.display='none';
-  if (cd) cd.style.display='block';
   const w = queue[qIdx];
   if (w?.indonesian) setTimeout(()=>speak(w.indonesian), 550);
 }
@@ -1238,125 +1111,32 @@ function filterWords(f, btn) {
 
 // ── STATS ──────────────────────────────────────────────
 function renderStats() {
-  const v=db.vocab, now=Date.now(), todayStr=new Date().toDateString();
-  const total=v.length, ms=v.filter(w=>status(w)==='mastered').length;
-  const pct=total>0?Math.round((ms/total)*100):0;
+  const v=db.vocab;
+  const ms=v.filter(w=>status(w)==='mastered').length;
   const totalR=v.reduce((s,w)=>s+(w.totalReviews||0),0);
   const totalC=v.reduce((s,w)=>s+(w.correct||0),0);
   const acc=totalR>0?Math.round((totalC/totalR)*100)+'%':'—';
-  const todayReviewed=v.filter(w=>w.lastReview&&new Date(w.lastReview).toDateString()===todayStr).length;
-
-  // Basic numbers
-  ['s-total','s-total2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=total;});
-  ['s-mastered2'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=ms;});
-  const pe=document.getElementById('s-pct'); if(pe) pe.textContent=pct;
+  document.getElementById('s-total').textContent=v.length;
+  document.getElementById('s-mastered').textContent=ms;
   document.getElementById('s-streak').textContent=db.meta.streak||0;
   document.getElementById('s-due').textContent=due().length;
-  document.getElementById('s-today').textContent=todayReviewed;
   document.getElementById('s-sessions').textContent=db.meta.totalSessions||0;
   document.getElementById('s-acc').textContent=acc;
 
-  // Progress bar
-  setTimeout(()=>{const b=document.getElementById('s-prog-bar');if(b)b.style.width=pct+'%';},120);
-
-  // Level
-  const lvs=[
-    {min:0,  emoji:'🌱', name:'初学者',   sub:'积累基础词汇，每天坚持！'},
-    {min:20, emoji:'📖', name:'学习中',   sub:'进步明显，继续保持！'},
-    {min:50, emoji:'🚀', name:'中级水平', sub:'已掌握过半，继续冲刺！'},
-    {min:80, emoji:'🏆', name:'高级水平', sub:'词汇量相当可观！'},
-    {min:100,emoji:'👑', name:'词汇大师', sub:'全部掌握，太厉害了！'}
-  ];
-  const lv=[...lvs].reverse().find(l=>pct>=l.min)||lvs[0];
-  document.getElementById('s-level-badge').textContent=lv.emoji;
-  document.getElementById('s-level-name').textContent=lv.name;
-  document.getElementById('s-level-sub').textContent=lv.sub;
-
-  // 7-day heatmap
-  const hm=document.getElementById('s-heatmap');
-  if(hm){
-    const days=[];
-    for(let i=6;i>=0;i--){
-      const d=new Date(now-i*86400000);
-      const ds=d.toDateString();
-      const cnt=v.filter(w=>w.lastReview&&new Date(w.lastReview).toDateString()===ds).length;
-      days.push({label:d.toLocaleDateString('zh',{weekday:'short'}),count:cnt,isToday:i===0});
-    }
-    const maxD=Math.max(...days.map(d=>d.count),1);
-    hm.innerHTML=days.map(d=>{
-      const opa=d.count>0?Math.max(0.25,d.count/maxD):0;
-      const bg=d.count>0?`rgba(66,133,244,${opa})`:'var(--surface2)';
-      const border=d.isToday?'2px solid var(--blue)':'1px solid var(--border)';
-      const txt=d.count>0?`color:#fff;font-weight:700`:`color:var(--text3)`;
-      return `<div style="flex:1;text-align:center">
-        <div style="width:100%;aspect-ratio:1;border-radius:8px;background:${bg};border:${border};
-          display:flex;align-items:center;justify-content:center;font-size:13px;${txt};margin-bottom:4px">${d.count||''}</div>
-        <div style="font-size:10px;color:var(--text3)">${d.label}</div>
-      </div>`;
-    }).join('');
-  }
-
-  // Hardest words
-  const hd=document.getElementById('s-hard');
-  if(hd){
-    const cands=v.filter(w=>(w.totalReviews||0)>=3)
-      .map(w=>({...w,rate:(w.correct||0)/(w.totalReviews||1)}))
-      .sort((a,b)=>a.rate-b.rate).slice(0,3);
-    if(!cands.length){
-      hd.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:8px 0">复习3次以上的词汇才会出现在这里</div>';
-    } else {
-      hd.innerHTML=cands.map(w=>{
-        const r=Math.round(w.rate*100);
-        const barC=r<50?'#ea4335':r<75?'#fbbc04':'#34a853';
-        return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
-          <div style="font-size:22px">${esc(w.emoji||'📖')}</div>
-          <div style="flex:1;min-width:0">
-            <div style="font-weight:600;font-size:14px">${esc(w.indonesian)}</div>
-            <div style="font-size:12px;color:var(--text2)">${esc(w.chinese||w.english||'')}</div>
-            <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
-              <div style="flex:1;background:var(--surface2);border-radius:4px;height:6px;overflow:hidden">
-                <div style="width:${r}%;background:${barC};height:100%;border-radius:4px"></div>
-              </div>
-              <div style="font-size:11px;color:var(--text3);white-space:nowrap">${r}% 正确 · ${w.totalReviews}次</div>
-            </div>
-          </div>
-        </div>`;
-      }).join('');
-    }
-  }
-
-  // Topic distribution
   const TOPIC_ZH={'Bisnis':'商务','Teknologi':'科技','Kehidupan':'生活','Makanan':'饮食',
     'Perjalanan':'旅行','Kesehatan':'健康','Pendidikan':'教育','Lainnya':'其他'};
   const topics={};
   v.forEach(w=>{const t=w.topic||'Lainnya';topics[t]=(topics[t]||0)+1;});
-  const maxT=Math.max(...Object.values(topics),1);
-  document.getElementById('chart').innerHTML=total===0
-    ?'<div style="color:var(--text3);font-size:13px;text-align:center;padding:8px 0">暂无词汇数据</div>'
-    :Object.entries(topics).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-      <div style="width:52px;font-size:12px;color:var(--text2);text-align:right;flex-shrink:0">${esc(TOPIC_ZH[t]||t)}</div>
-      <div style="flex:1;background:var(--surface2);border-radius:4px;height:20px;overflow:hidden">
-        <div style="width:${Math.round((n/maxT)*100)}%;background:var(--blue);height:100%;border-radius:4px;
-          display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:600">
-          ${n>maxT*0.25?n:''}</div>
+  const max=Math.max(...Object.values(topics),1);
+  document.getElementById('chart').innerHTML = Object.entries(topics).sort((a,b)=>b[1]-a[1])
+    .map(([t,n])=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <div style="width:70px;font-size:11px;color:var(--text2);text-align:right;flex-shrink:0">${esc(TOPIC_ZH[t]||t)}</div>
+      <div style="flex:1;background:var(--surface2);border-radius:3px;height:18px;overflow:hidden">
+        <div style="width:${Math.round((n/max)*100)}%;background:var(--blue);height:100%;border-radius:3px"></div>
       </div>
-      <div style="width:24px;font-size:12px;color:var(--text2);text-align:right">${n}</div>
+      <div style="width:20px;font-size:11px;color:var(--text3)">${n}</div>
     </div>`).join('');
-
-  // Next review
-  const nc=document.getElementById('s-next-card'),ne=document.getElementById('s-next');
-  const upcoming=v.filter(w=>w.nextReview&&w.nextReview>now).sort((a,b)=>a.nextReview-b.nextReview)[0];
-  if(upcoming&&nc&&ne){
-    nc.style.display='';
-    const diff=upcoming.nextReview-now, h=Math.floor(diff/3600000), m=Math.ceil((diff%3600000)/60000);
-    const ts=h>0?`${h}小时${m}分钟后`:`${m}分钟后`;
-    ne.innerHTML=`<div style="display:flex;align-items:center;gap:12px">
-      <div style="font-size:26px">${esc(upcoming.emoji||'📖')}</div>
-      <div><div style="font-weight:600;font-size:15px">${esc(upcoming.indonesian)}</div>
-      <div style="font-size:12px;color:var(--text2)">${ts}到期 · 当前间隔 ${upcoming.interval||0} 天</div></div>
-    </div>`;
-  } else if(nc){ nc.style.display='none'; }
 }
 
 // ── UTILS ──────────────────────────────────────────────
@@ -1376,16 +1156,9 @@ function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function exportData() {
-  const json = JSON.stringify(db, null, 2);
-  if (window.AndroidBridge) {
-    // Android WebView: a.download doesn't work — delegate to native saveBackup()
-    window.AndroidBridge.saveBackup(json);
-    return;
-  }
-  const blob = new Blob([json], {type: 'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'indolearn_backup.json'; a.click();
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='indolearn_backup.json'; a.click();
 }
 function importData() { document.getElementById('import-file').click(); }
 function handleImportFile(input) {
