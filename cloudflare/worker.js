@@ -22,10 +22,10 @@ export default {
       } catch (e) {
         // Fallback to last known version if GitHub unreachable
         return new Response(JSON.stringify({
-          version_code: 19,
-          version: "1.0.19",
+          version_code: 20,
+          version: "1.0.20",
           apk_url: "https://1232131.xyz/indolearn/app.apk",
-          changelog: "v1.0.19: AI分析改走服务端代理，无需配置API Key，开箱即用"
+          changelog: "v1.0.20: 修复 Google OAuth 登录；内置 Client ID，无需手动填写"
         }, null, 2), { headers: { ...cors, 'Content-Type': 'application/json' } });
       }
     }
@@ -102,7 +102,7 @@ export default {
           <div>
             <h1 class="app-name">IndoLearn</h1>
             <p class="app-tagline">AI 驱动的印尼语词汇学习 Android 应用</p>
-            <span class="badge">v1.0.19</span>
+            <span class="badge">v1.0.20</span>
             <span class="badge badge-green">免费开源</span>
             <span class="badge badge-green">无需 API Key</span>
           </div>
@@ -150,7 +150,7 @@ export default {
           <h2>⬇️ 下载安装</h2>
           <p style="color:var(--text2);margin-bottom:20px">支持 Android 7.0+，需要开启「允许安装未知来源应用」</p>
           <div class="download-btns">
-            <a class="btn-dl btn-primary-dl" href="/indolearn/app.apk">⬇️ 下载 APK（v1.0.19）</a>
+            <a class="btn-dl btn-primary-dl" href="/indolearn/app.apk">⬇️ 下载 APK（v1.0.20）</a>
             <a class="btn-dl btn-ghost-dl" href="https://github.com/Haydendddda/indolearn-android/releases" target="_blank">📦 GitHub Releases</a>
           </div>
           <p style="font-size:12px;color:var(--text2);margin-top:14px">APK 经过 Cloudflare 代理，国内网络可直接下载</p>
@@ -166,10 +166,14 @@ export default {
           <div style="display:flex;flex-direction:column;gap:12px">
             <div style="border-left:3px solid var(--accent);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-                <span class="badge" style="margin:0">v1.0.19</span>
+                <span class="badge" style="margin:0">v1.0.20</span>
                 <span style="font-size:12px;color:var(--text2)">最新版本</span>
               </div>
-              <p style="margin:0;font-size:14px;color:var(--text)">AI 分析改走服务端代理，无需配置 API Key，安装即用；开箱即用体验全面升级</p>
+              <p style="margin:0;font-size:14px;color:var(--text)">修复 Google OAuth 登录（invalid_client 错误）；内置 Client ID，Gmail / Drive 功能开箱即用，无需手动填写</p>
+            </div>
+            <div style="border-left:3px solid var(--border);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
+              <div style="margin-bottom:4px"><span class="badge" style="margin:0">v1.0.19</span></div>
+              <p style="margin:0;font-size:14px;color:var(--text2)">AI 分析改走服务端代理，无需配置 API Key，安装即用；开箱即用体验全面升级</p>
             </div>
             <div style="border-left:3px solid var(--border);padding:8px 14px;background:var(--bg2);border-radius:0 8px 8px 0">
               <div style="margin-bottom:4px"><span class="badge" style="margin:0">v1.0.18</span></div>

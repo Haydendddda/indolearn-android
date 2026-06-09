@@ -374,7 +374,9 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 
 // ── STATE ──────────────────────────────────────────────
 const KEY = 'indolearn3';
-let db = { vocab: [], settings: {}, meta: { streak:0, lastStudyDate:null, totalSessions:0 } };
+// Default Google OAuth Client ID (Web application type, redirect: http://localhost:8765/oauth2redirect)
+const DEFAULT_GOOGLE_CLIENT_ID = '553490694468-vsjc59md0s32fbimeljn96krb2nrrv86.apps.googleusercontent.com';
+let db = { vocab: [], settings: { googleClientId: DEFAULT_GOOGLE_CLIENT_ID }, meta: { streak:0, lastStudyDate:null, totalSessions:0 } };
 let queue = [], qIdx = 0, flipped = false, curFilter = 'all';
 let gmailToken = null, driveToken = null;
 let activeImportTab = 'text';
@@ -384,6 +386,8 @@ let touchStartX = 0, touchDeltaX = 0, touchActive = false;
 // ── STORAGE ────────────────────────────────────────────
 function load() {
   try { const r = localStorage.getItem(KEY); if (r) db = {...db, ...JSON.parse(r)}; } catch(e) {}
+  // Always apply current Client ID (previous one was permanently deleted)
+  db.settings.googleClientId = DEFAULT_GOOGLE_CLIENT_ID;
 }
 function save() { localStorage.setItem(KEY, JSON.stringify(db)); }
 
